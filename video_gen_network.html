@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Generation Pipeline</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0;
+            background-color: #121212; 
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        svg { 
+            max-width: 100%; 
+            height: auto; 
+            display: block;
+            margin: 0 auto;
+            background-color: #121212;
+        }
+        .title { 
+            font-size: 28px; 
+            text-align: center; 
+            margin: 30px 0;
+            color: #ffffff; 
+            font-weight: 300;
+        }
+        .subtitle { 
+            font-size: 20px; 
+            text-align: center; 
+            margin-bottom: 40px;
+            color: #bdbdbd; 
+            font-weight: 300;
+        }
+        .system-type {
+            font-size: 22px;
+            fill: #ffffff;
+            font-weight: 300;
+        }
+        .node {
+            fill: #121212;
+            stroke-width: 1.5;
+            stroke-opacity: 0.8;
+        }
+        .node-label {
+            font-size: 12px;
+            fill: #ffffff;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        .connector {
+            stroke-width: 1.5;
+            stroke-opacity: 0.7;
+            fill: none;
+        }
+        .connector-dot {
+            fill: #ffffff;
+            fill-opacity: 0.8;
+        }
+        .explanation {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .explanation h2 {
+            color: #ffffff;
+            font-weight: 300;
+            margin-top: 0;
+        }
+        .explanation p, .explanation li {
+            color: #bdbdbd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Video Generation Pipeline</h1>
+        <h2 class="subtitle">Agentic Architecture</h2>
+        
+        <svg width="1000" height="700" xmlns="http://www.w3.org/2000/svg">
+            <!-- Main System Title -->
+            <text x="500" y="40" class="system-type" text-anchor="middle">Multi-Agent Video Generation System</text>
+            
+            <!-- User Node -->
+            <circle cx="100" cy="100" r="30" class="node" stroke="#4fc3f7" />
+            <text x="100" y="100" class="node-label" font-size="20">👤</text>
+            <text x="100" y="145" class="node-label">User</text>
+            
+            <!-- Core Agent Node -->
+            <circle cx="300" cy="100" r="35" class="node" stroke="#81c784" />
+            <text x="300" y="100" class="node-label" font-size="20">🤖</text>
+            <text x="300" y="145" class="node-label">ToolCallingAgent</text>
+            
+            <!-- Connection dots -->
+            <circle cx="180" cy="100" r="4" class="connector-dot" />
+            <circle cx="220" cy="100" r="4" class="connector-dot" />
+            
+            <!-- Memory Node -->
+            <circle cx="300" cy="30" r="20" class="node" stroke="#ba68c8" />
+            <text x="300" y="30" class="node-label" font-size="16">🧠</text>
+            <text x="300" y="60" class="node-label">Memory</text>
+            
+            <!-- Tool Collection Node -->
+            <circle cx="450" cy="100" r="30" class="node" stroke="#ffb74d" />
+            <text x="450" y="100" class="node-label" font-size="18">🔧</text>
+            <text x="450" y="145" class="node-label">ToolCollection</text>
+            
+            <!-- Video Server Node -->
+            <circle cx="600" cy="100" r="30" class="node" stroke="#f06292" />
+            <text x="600" y="100" class="node-label" font-size="18">📡</text>
+            <text x="600" y="145" class="node-label">video_server.py</text>
+            
+            <!-- Video Gen Component -->
+            <circle cx="600" cy="240" r="30" class="node" stroke="#e57373" />
+            <text x="600" y="240" class="node-label" font-size="18">🎬</text>
+            <text x="600" y="285" class="node-label">video_gen.py</text>
+            
+            <!-- External API Nodes -->
+            <circle cx="450" cy="350" r="25" class="node" stroke="#64b5f6" />
+            <text x="450" y="350" class="node-label" font-size="16">🧠</text>
+            <text x="450" y="385" class="node-label">OpenAI API</text>
+            
+            <circle cx="600" cy="350" r="25" class="node" stroke="#64b5f6" />
+            <text x="600" y="350" class="node-label" font-size="16">🖼️</text>
+            <text x="600" y="385" class="node-label">Replicate API</text>
+            
+            <circle cx="750" cy="350" r="25" class="node" stroke="#64b5f6" />
+            <text x="750" y="350" class="node-label" font-size="16">🎵</text>
+            <text x="750" y="385" class="node-label">SonAuto API</text>
+            
+            <!-- Storage Nodes -->
+            <circle cx="450" cy="480" r="20" class="node" stroke="#aed581" />
+            <text x="450" y="480" class="node-label" font-size="14">📁</text>
+            <text x="450" y="510" class="node-label">image/</text>
+            
+            <circle cx="550" cy="480" r="20" class="node" stroke="#aed581" />
+            <text x="550" y="480" class="node-label" font-size="14">📁</text>
+            <text x="550" y="510" class="node-label">audio/</text>
+            
+            <circle cx="650" cy="480" r="20" class="node" stroke="#aed581" />
+            <text x="650" y="480" class="node-label" font-size="14">📁</text>
+            <text x="650" y="510" class="node-label">music/</text>
+            
+            <circle cx="750" cy="480" r="20" class="node" stroke="#aed581" />
+            <text x="750" y="480" class="node-label" font-size="14">📁</text>
+            <text x="750" y="510" class="node-label">video/</text>
+            
+            <!-- Connections -->
+            <line x1="130" y1="100" x2="170" y2="100" class="connector" stroke="#ffffff" />
+            <line x1="190" y1="100" x2="210" y2="100" class="connector" stroke="#ffffff" />
+            <line x1="230" y1="100" x2="265" y2="100" class="connector" stroke="#ffffff" />
+            <line x1="300" y1="50" x2="300" y2="65" class="connector" stroke="#ba68c8" />
+            <line x1="335" y1="100" x2="420" y2="100" class="connector" stroke="#81c784" />
+            <line x1="480" y1="100" x2="570" y2="100" class="connector" stroke="#ffb74d" />
+            <line x1="600" y1="130" x2="600" y2="210" class="connector" stroke="#f06292" />
+            
+            <!-- API and Storage Connections -->
+            <line x1="575" y1="240" x2="475" y2="350" class="connector" stroke="#e57373" stroke-dasharray="5,3" />
+            <line x1="600" y1="270" x2="600" y2="325" class="connector" stroke="#e57373" stroke-dasharray="5,3" />
+            <line x1="625" y1="240" x2="725" y2="350" class="connector" stroke="#e57373" stroke-dasharray="5,3" />
+            
+            <line x1="450" y1="375" x2="450" y2="460" class="connector" stroke="#64b5f6" />
+            <line x1="600" y1="375" x2="600" y2="460" class="connector" stroke="#64b5f6" />
+            <line x1="600" y1="460" x2="550" y2="480" class="connector" stroke="#64b5f6" />
+            <line x1="600" y1="460" x2="650" y2="480" class="connector" stroke="#64b5f6" />
+            <line x1="750" y1="375" x2="750" y2="460" class="connector" stroke="#64b5f6" />
+            
+            <line x1="470" y1="480" x2="730" y2="480" class="connector" stroke="#aed581" stroke-dasharray="5,3" />
+            
+            <!-- Patterns -->
+            <text x="100" y="600" class="system-type">Architecture Patterns</text>
+            
+            <!-- Sequential Pattern -->
+            <circle cx="120" cy="640" r="15" class="node" stroke="#ffffff" />
+            <circle cx="180" cy="640" r="15" class="node" stroke="#ffffff" />
+            <circle cx="240" cy="640" r="15" class="node" stroke="#ffffff" />
+            <line x1="135" y1="640" x2="165" y2="640" class="connector" stroke="#ffffff" />
+            <line x1="195" y1="640" x2="225" y2="640" class="connector" stroke="#ffffff" />
+            <text x="180" y="670" class="node-label">Sequential</text>
+            
+            <!-- Parallel Pattern -->
+            <circle cx="350" cy="620" r="15" class="node" stroke="#ffffff" />
+            <circle cx="420" cy="660" r="15" class="node" stroke="#ffffff" />
+            <circle cx="420" cy="580" r="15" class="node" stroke="#ffffff" />
+            <line x1="365" y1="620" x2="405" y2="580" class="connector" stroke="#ffffff" />
+            <line x1="365" y1="620" x2="405" y2="660" class="connector" stroke="#ffffff" />
+            <text x="385" y="670" class="node-label">Parallel</text>
+            
+            <!-- Loop Pattern -->
+            <circle cx="520" cy="640" r="15" class="node" stroke="#ffffff" />
+            <circle cx="580" cy="640" r="15" class="node" stroke="#ffffff" />
+            <path d="M535 640 C550 610, 550 610, 580 610 C610 610, 620 620, 595 630" class="connector" stroke="#ffffff" />
+            <line x1="535" y1="640" x2="565" y2="640" class="connector" stroke="#ffffff" />
+            <text x="550" y="670" class="node-label">Loop</text>
+            
+            <!-- Aggregator Pattern -->
+            <circle cx="700" cy="620" r="15" class="node" stroke="#ffffff" />
+            <circle cx="670" cy="660" r="15" class="node" stroke="#ffffff" />
+            <circle cx="730" cy="660" r="15" class="node" stroke="#ffffff" />
+            <line x1="670" y1="645" x2="700" y2="625" class="connector" stroke="#ffffff" />
+            <line x1="730" y1="645" x2="700" y2="625" class="connector" stroke="#ffffff" />
+            <text x="700" y="670" class="node-label">Aggregator</text>
+        </svg>
+        
+        <div class="explanation">
+            <h2>Video Generation Agentic Architecture</h2>
+            <p>This diagram illustrates the multi-agent architecture for the video generation pipeline:</p>
+            
+            <p><strong>Key Components:</strong></p>
+            <ul>
+                <li><strong>ToolCallingAgent:</strong> The central orchestrator that processes user requests and coordinates the video generation workflow</li>
+                <li><strong>ToolCollection:</strong> Manages the available tools and capabilities that the agent can use</li>
+                <li><strong>video_server.py:</strong> Provides an MCP-compatible interface for video operations</li>
+                <li><strong>video_gen.py:</strong> Core implementation that orchestrates the video creation pipeline</li>
+            </ul>
+            
+            <p><strong>External Services:</strong></p>
+            <ul>
+                <li><strong>OpenAI API:</strong> Generates creative prompts and text for video content</li>
+                <li><strong>Replicate API:</strong> Creates images based on prompts</li>
+                <li><strong>SonAuto API:</strong> Produces music and audio for videos</li>
+            </ul>
+            
+            <p><strong>Storage:</strong> Generated assets are stored in dedicated directories (image/, audio/, music/, video/)</p>
+            
+            <p><strong>Architecture Patterns Used:</strong></p>
+            <ul>
+                <li><strong>Sequential:</strong> Processing flows from one step to the next (e.g., prompt → image → audio → video)</li>
+                <li><strong>Parallel:</strong> Simultaneous processing of different assets (images, audio)</li>
+                <li><strong>Loop:</strong> Iterative refinement of content until quality is achieved</li>
+                <li><strong>Aggregator:</strong> Combining outputs from multiple sources into final video</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html> 

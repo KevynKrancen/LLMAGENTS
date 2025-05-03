@@ -1,0 +1,5 @@
+{
+  "prompt": "rock music, Make a 20 second video about a futuristic programming school for kids with rock background music saying Join us! The promotion is for September 2025.",
+  "instrumental": true,
+  "prompt_strength": "2.3"
+}

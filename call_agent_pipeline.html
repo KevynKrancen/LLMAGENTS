@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call Agent Pipeline</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0;
+            background-color: #121212; 
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        svg { 
+            max-width: 100%; 
+            height: auto; 
+            display: block;
+            margin: 0 auto;
+            background-color: #121212;
+        }
+        .title { 
+            font-size: 28px; 
+            text-align: center; 
+            margin: 30px 0;
+            color: #ffffff; 
+            font-weight: 300;
+        }
+        .subtitle { 
+            font-size: 20px; 
+            text-align: center; 
+            margin-bottom: 40px;
+            color: #bdbdbd; 
+            font-weight: 300;
+        }
+        .system-type {
+            font-size: 22px;
+            fill: #ffffff;
+            font-weight: 300;
+        }
+        .node {
+            fill: #121212;
+            stroke-width: 1.5;
+            stroke-opacity: 0.8;
+        }
+        .node-label {
+            font-size: 12px;
+            fill: #ffffff;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        .connector {
+            stroke-width: 1.5;
+            stroke-opacity: 0.7;
+            fill: none;
+        }
+        .connector-dot {
+            fill: #ffffff;
+            fill-opacity: 0.8;
+        }
+        .explanation {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .explanation h2 {
+            color: #ffffff;
+            font-weight: 300;
+            margin-top: 0;
+        }
+        .explanation p, .explanation li {
+            color: #bdbdbd;
+        }
+        .section-area {
+            fill: #1e1e1e;
+            opacity: 0.3;
+            rx: 15;
+            ry: 15;
+        }
+        .section-label {
+            font-size: 16px;
+            fill: #ffffff;
+            font-weight: 300;
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Voice Call Agent Pipeline</h1>
+        <h2 class="subtitle">Agentic Architecture</h2>
+        
+        <svg width="1000" height="700" xmlns="http://www.w3.org/2000/svg">
+            <!-- Main System Title -->
+            <text x="500" y="40" class="system-type" text-anchor="middle">Multi-Agent Voice Call System</text>
+            
+            <!-- Section Areas -->
+            <rect x="50" y="60" width="900" height="120" class="section-area" fill="#3498db" />
+            <rect x="50" y="200" width="300" height="380" class="section-area" fill="#e74c3c" />
+            <rect x="370" y="200" width="260" height="380" class="section-area" fill="#2ecc71" />
+            <rect x="650" y="200" width="300" height="380" class="section-area" fill="#f39c12" />
+            
+            <!-- Section Labels -->
+            <text x="500" y="80" class="section-label">USER INTERACTION LAYER</text>
+            <text x="200" y="220" class="section-label">AGENT FRAMEWORK</text>
+            <text x="500" y="220" class="section-label">MCP PROTOCOL LAYER</text>
+            <text x="800" y="220" class="section-label">VOICE CALL SYSTEM</text>
+            
+            <!-- User Node -->
+            <circle cx="100" cy="130" r="30" class="node" stroke="#4fc3f7" />
+            <text x="100" y="130" class="node-label" font-size="20">👤</text>
+            <text x="100" y="175" class="node-label">User</text>
+            
+            <!-- Web UI Node -->
+            <circle cx="250" cy="100" r="25" class="node" stroke="#3498db" />
+            <text x="250" y="100" class="node-label" font-size="16">🌐</text>
+            <text x="250" y="135" class="node-label">web_ui.py</text>
+            
+            <!-- CLI Node -->
+            <circle cx="350" cy="100" r="25" class="node" stroke="#3498db" />
+            <text x="350" y="100" class="node-label" font-size="16">⌨️</text>
+            <text x="350" y="135" class="node-label">agent.py</text>
+            
+            <!-- Core Agent Node -->
+            <circle cx="450" cy="130" r="30" class="node" stroke="#81c784" />
+            <text x="450" y="130" class="node-label" font-size="20">🤖</text>
+            <text x="450" y="175" class="node-label">ToolCallingAgent</text>
+            
+            <!-- Tool Collection Node -->
+            <circle cx="200" cy="300" r="30" class="node" stroke="#ffb74d" />
+            <text x="200" y="300" class="node-label" font-size="18">🔧</text>
+            <text x="200" y="345" class="node-label">ToolCollection</text>
+            
+            <!-- LLM Node -->
+            <circle cx="200" cy="400" r="25" class="node" stroke="#e67e22" />
+            <text x="200" y="400" class="node-label" font-size="16">🧠</text>
+            <text x="200" y="435" class="node-label">LiteLLMModel</text>
+            
+            <!-- Voice Tools Node -->
+            <circle cx="120" cy="500" r="25" class="node" stroke="#1abc9c" />
+            <text x="120" y="500" class="node-label" font-size="16">📞</text>
+            <text x="120" y="535" class="node-label">Voice Tools</text>
+            
+            <!-- Other Tools Node -->
+            <circle cx="280" cy="500" r="25" class="node" stroke="#1abc9c" />
+            <text x="280" y="500" class="node-label" font-size="16">🛠️</text>
+            <text x="280" y="535" class="node-label">Other Tools</text>
+            
+            <!-- MCP Nodes -->
+            <circle cx="500" cy="300" r="30" class="node" stroke="#2ecc71" />
+            <text x="500" y="300" class="node-label" font-size="18">⚙️</text>
+            <text x="500" y="345" class="node-label">StdioServerParameters</text>
+            
+            <circle cx="500" cy="420" r="30" class="node" stroke="#2ecc71" />
+            <text x="500" y="420" class="node-label" font-size="18">🔄</text>
+            <text x="500" y="465" class="node-label">FastMCP</text>
+            
+            <!-- Voice Call System Nodes -->
+            <circle cx="800" cy="300" r="30" class="node" stroke="#f39c12" />
+            <text x="800" y="300" class="node-label" font-size="18">📡</text>
+            <text x="800" y="345" class="node-label">voice_mcp_server.py</text>
+            
+            <circle cx="800" cy="420" r="30" class="node" stroke="#f39c12" />
+            <text x="800" y="420" class="node-label" font-size="18">📞</text>
+            <text x="800" y="465" class="node-label">voicecall.py</text>
+            
+            <!-- External Service Node -->
+            <circle cx="650" cy="500" r="25" class="node" stroke="#9b59b6" />
+            <text x="650" y="500" class="node-label" font-size="16">🔊</text>
+            <text x="650" y="535" class="node-label">External Voice Service</text>
+            
+            <!-- Storage Nodes -->
+            <circle cx="800" cy="530" r="15" class="node" stroke="#3498db" />
+            <text x="800" y="530" class="node-label" font-size="10">📁</text>
+            <text x="800" y="555" class="node-label">recordings/</text>
+            
+            <circle cx="850" cy="530" r="15" class="node" stroke="#3498db" />
+            <text x="850" y="530" class="node-label" font-size="10">📁</text>
+            <text x="850" y="555" class="node-label">transcriptions/</text>
+            
+            <circle cx="900" cy="530" r="15" class="node" stroke="#3498db" />
+            <text x="900" y="530" class="node-label" font-size="10">📁</text>
+            <text x="900" y="555" class="node-label">call_data/</text>
+            
+            <!-- Connection dots -->
+            <circle cx="170" cy="130" r="4" class="connector-dot" />
+            <circle cx="525" cy="130" r="4" class="connector-dot" />
+            <circle cx="590" cy="130" r="4" class="connector-dot" />
+            <circle cx="655" cy="130" r="4" class="connector-dot" />
+            
+            <!-- Connections -->
+            <line x1="130" y1="130" x2="170" y2="130" class="connector" stroke="#ffffff" />
+            <line x1="170" y1="130" x2="240" y2="105" class="connector" stroke="#ffffff" />
+            <line x1="170" y1="130" x2="240" y2="130" class="connector" stroke="#ffffff" />
+            <line x1="280" y1="100" x2="325" y2="100" class="connector" stroke="#ffffff" />
+            <line x1="375" y1="100" x2="440" y2="125" class="connector" stroke="#ffffff" />
+            <line x1="450" y1="160" x2="450" y2="250" class="connector" stroke="#ffffff" />
+            <line x1="450" y1="250" x2="200" y2="270" class="connector" stroke="#ffffff" />
+            
+            <line x1="200" y1="330" x2="200" y2="375" class="connector" stroke="#ffb74d" />
+            <line x1="185" y1="330" x2="120" y2="475" class="connector" stroke="#ffb74d" />
+            <line x1="215" y1="330" x2="280" y2="475" class="connector" stroke="#ffb74d" />
+            
+            <line x1="230" y1="300" x2="470" y2="300" class="connector" stroke="#ffffff" />
+            <line x1="500" y1="330" x2="500" y2="390" class="connector" stroke="#2ecc71" />
+            <line x1="530" y1="300" x2="770" y2="300" class="connector" stroke="#ffffff" />
+            <line x1="530" y1="420" x2="770" y2="420" class="connector" stroke="#ffffff" />
+            
+            <line x1="800" y1="330" x2="800" y2="390" class="connector" stroke="#f39c12" />
+            <line x1="780" y1="450" x2="675" y2="485" class="connector" stroke="#f39c12" stroke-dasharray="5,3" />
+            <line x1="675" y1="515" x2="780" y2="450" class="connector" stroke="#9b59b6" stroke-dasharray="5,3" />
+            
+            <line x1="800" y1="450" x2="800" y2="515" class="connector" stroke="#f39c12" />
+            <line x1="815" y1="450" x2="850" y2="515" class="connector" stroke="#f39c12" />
+            <line x1="830" y1="450" x2="900" y2="515" class="connector" stroke="#f39c12" />
+            
+            <!-- Patterns -->
+            <text x="100" y="600" class="system-type">Architecture Patterns</text>
+            
+            <!-- Sequential Pattern -->
+            <circle cx="120" cy="640" r="15" class="node" stroke="#ffffff" />
+            <circle cx="180" cy="640" r="15" class="node" stroke="#ffffff" />
+            <circle cx="240" cy="640" r="15" class="node" stroke="#ffffff" />
+            <line x1="135" y1="640" x2="165" y2="640" class="connector" stroke="#ffffff" />
+            <line x1="195" y1="640" x2="225" y2="640" class="connector" stroke="#ffffff" />
+            <text x="180" y="670" class="node-label">Sequential</text>
+            
+            <!-- Human-in-the-loop Pattern -->
+            <circle cx="400" cy="640" r="15" class="node" stroke="#ffffff" />
+            <circle cx="450" cy="615" r="15" class="node" stroke="#ffffff" />
+            <circle cx="450" cy="665" r="15" class="node" stroke="#ffffff" />
+            <line x1="415" y1="640" x2="435" y2="615" class="connector" stroke="#ffffff" />
+            <line x1="415" y1="640" x2="435" y2="665" class="connector" stroke="#ffffff" />
+            <text x="355" y="640" class="node-label" text-anchor="end">👤</text>
+            <text x="475" y="615" class="node-label" text-anchor="start">🤖</text>
+            <text x="475" y="665" class="node-label" text-anchor="start">👤</text>
+            <text x="430" y="685" class="node-label">Human-in-the-loop</text>
+            
+            <!-- Router Pattern -->
+            <circle cx="650" cy="640" r="15" class="node" stroke="#ffffff" />
+            <circle cx="700" cy="615" r="15" class="node" stroke="#ffffff" />
+            <circle cx="700" cy="665" r="15" class="node" stroke="#ffffff" />
+            <line x1="665" y1="640" x2="685" y2="615" class="connector" stroke="#ffffff" />
+            <line x1="665" y1="640" x2="685" y2="665" class="connector" stroke="#ffffff" />
+            <text x="650" y="670" class="node-label">Router</text>
+        </svg>
+        
+        <div class="explanation">
+            <h2>Voice Call Agent Architecture</h2>
+            <p>This diagram illustrates the multi-agent architecture for the voice call pipeline:</p>
+            
+            <p><strong>Key Components:</strong></p>
+            <ul>
+                <li><strong>ToolCallingAgent:</strong> The central orchestrator that processes user requests and manages voice call operations</li>
+                <li><strong>ToolCollection:</strong> Manages the available tools and capabilities that the agent can use</li>
+                <li><strong>voice_mcp_server.py:</strong> Provides an MCP-compatible interface for voice call operations</li>
+                <li><strong>voicecall.py:</strong> Core implementation that handles call setup, management, and termination</li>
+            </ul>
+            
+            <p><strong>External Services:</strong></p>
+            <ul>
+                <li><strong>External Voice Service:</strong> Third-party service (defined by VOICE_SERVER_URL) that handles the actual audio communication</li>
+            </ul>
+            
+            <p><strong>Storage:</strong> Call data is stored in dedicated directories:</p>
+            <ul>
+                <li><strong>recordings/:</strong> Stores audio recordings from calls</li>
+                <li><strong>transcriptions/:</strong> Contains text transcriptions of voice conversations</li>
+                <li><strong>call_data/:</strong> Maintains metadata about calls and their status</li>
+            </ul>
+            
+            <p><strong>Architecture Patterns Used:</strong></p>
+            <ul>
+                <li><strong>Sequential:</strong> Process flow from query understanding to call execution to result processing</li>
+                <li><strong>Human-in-the-loop:</strong> Integrates human participants (callers) in the agent workflow</li>
+                <li><strong>Router:</strong> Directs conversation flow based on caller responses and context</li>
+            </ul>
+            
+            <p>This system enables an AI agent to initiate, manage, and participate in voice calls with humans, handling the complexities of real-time audio communication while maintaining context and purpose throughout the conversation.</p>
+        </div>
+    </div>
+</body>
+</html> 

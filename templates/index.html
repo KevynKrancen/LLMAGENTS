@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Agent Interface</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Custom styles */
+        body {
+            background-color: #121212;
+            font-family: 'Inter', sans-serif;
+            color: #e0e0e0;
+        }
+        .chat-container {
+            max-height: calc(100vh - 280px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #6366F1 #1e1e1e;
+        }
+        .message-bubble {
+            border-radius: 1rem;
+            max-width: 80%;
+        }
+        .user-message {
+            background-color: #6366F1;
+            color: white;
+            border-top-right-radius: 0.2rem;
+        }
+        .agent-message {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            border-top-left-radius: 0.2rem;
+        }
+        .message-input {
+            border-radius: 1.5rem;
+            transition: all 0.3s;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+        .message-input:focus {
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+        }
+        .send-btn {
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background-color: #6366F1;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+            animation: typing 1s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        code {
+            font-family: 'Fira Code', monospace;
+            background-color: rgba(255,255,255,0.1);
+            padding: 0.1rem 0.2rem;
+            border-radius: 0.2rem;
+        }
+        pre {
+            background-color: #1F2937;
+            color: #e5e7eb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+        }
+        @media (max-width: 640px) {
+            .message-bubble {
+                max-width: 90%;
+            }
+        }
+        /* Server blocks */
+        .server-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .server-block {
+            background-color: #1e1e1e;
+            border: 1px solid #6366F1;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .server-block:hover {
+            background-color: #2d2d2d;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
+        }
+        .server-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 0.5rem;
+        }
+        .server-title {
+            font-weight: 600;
+            color: #a5b4fc;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .server-subtitle {
+            color: #9ca3af;
+            text-align: center;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            line-height: 1.2;
+        }
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+        .modal-content {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            margin: 5% auto;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 0.75rem;
+            right: 1rem;
+            color: #9CA3AF;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-icon {
+            width: 48px;
+            height: 48px;
+            margin-right: 1rem;
+        }
+        /* Add a style for the author name */
+        .author-name {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            font-weight: normal;
+            text-align: center;
+            margin-top: 0.25rem;
+        }
+        
+        /* Update header styles for centering */
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+        }
+        
+        /* Pipeline Diagram Modal */
+        .pipeline-modal {
+            display: none;
+            position: fixed;
+            z-index: 20;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            overflow: auto;
+        }
+        
+        .pipeline-content {
+            position: relative;
+            width: 90%;
+            height: 90%;
+            margin: 2% auto;
+            background-color: #121212;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .close-pipeline {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            z-index: 30;
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pipeline-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-8">
+        <header class="flex items-center justify-between mb-6">
+            <div class="flex-shrink-0">
+                <div class="bg-indigo-600 text-white p-3 rounded-full">
+                    <i class="fas fa-robot"></i>
+                </div>
+            </div>
+            <div class="header-content">
+                <h1 class="text-2xl font-bold text-gray-100">MCP Agent Interface</h1>
+                <div class="author-name">by Kevyn Krancenblum</div>
+            </div>
+            <div id="status-indicator" class="flex items-center flex-shrink-0">
+                <span id="status-dot" class="h-3 w-3 bg-yellow-400 rounded-full mr-2"></span>
+                <span id="status-text" class="text-sm text-gray-300">Initializing...</span>
+            </div>
+        </header>
+        
+        <div class="bg-gray-900 rounded-lg shadow-lg p-6">
+            <!-- Server blocks -->
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-gray-400 mb-3">Available MCP Servers:</h3>
+                <div class="server-grid">
+                    <!-- CAG+RAG Server -->
+                    <div class="server-block" data-server="cagrag" data-pipeline="cag_rag_pipeline.html">
+                        <svg class="server-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <div class="server-title">CAG+RAG</div>
+                        <div class="server-subtitle">Ask me about the different projects</div>
+                    </div>
+                    
+                    <!-- Video Generator Server -->
+                    <div class="server-block" data-server="video" data-pipeline="video_gen_pipeline.html">
+                        <svg class="server-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                        </svg>
+                        <div class="server-title">Video Generator</div>
+                        <div class="server-subtitle">Create custom videos with AI</div>
+                    </div>
+                    
+                    <!-- Voice Call Server -->
+                    <div class="server-block" data-server="voice" data-pipeline="call_agent_pipeline.html">
+                        <svg class="server-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                        <div class="server-title">Voice Calls</div>
+                        <div class="server-subtitle">Make phone calls with AI</div>
+                    </div>
+                    
+                    <!-- Gmail Server -->
+                    <div class="server-block" data-server="gmail" data-pipeline="mail_agent_pipeline.html">
+                        <svg class="server-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        <div class="server-title">Gmail</div>
+                        <div class="server-subtitle">Send and read emails</div>
+                    </div>
+                    
+                    <!-- ML/DL News Server -->
+                    <div class="server-block" data-server="mlnews">
+                        <svg class="server-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                        </svg>
+                        <div class="server-title">ML/DL News</div>
+                        <div class="server-subtitle">Latest AI research updates</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat messages will appear here -->
+            <div id="chat-container" class="chat-container mb-6 p-2"></div>
+            
+            <!-- Typing indicator -->
+            <div id="typing-indicator" class="typing-indicator mx-2 mb-4 hidden">
+                <div class="flex items-center">
+                    <div class="bg-indigo-900 rounded-full p-2 mr-2">
+                        <i class="fas fa-robot text-indigo-400 text-sm"></i>
+                    </div>
+                    <div class="px-4 py-2 bg-gray-800 rounded-full">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Input area -->
+            <div class="flex items-center">
+                <input id="message-input" type="text" placeholder="Type your message here..." 
+                       class="message-input flex-grow px-5 py-3 mr-3 border border-gray-700 focus:outline-none focus:border-indigo-500">
+                <button id="send-btn" class="send-btn bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Server info modal -->
+    <div id="server-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="flex items-center mb-4">
+                <div id="modal-icon-container" class="flex-shrink-0"></div>
+                <h3 id="modal-title" class="text-xl font-bold text-gray-200"></h3>
+            </div>
+            <p id="modal-description" class="text-gray-300"></p>
+            <div class="mt-4">
+                <h4 class="font-semibold text-gray-200 mb-2">Example Commands:</h4>
+                <ul id="modal-examples" class="text-sm text-gray-300 space-y-1 pl-4 list-disc"></ul>
+            </div>
+            <div class="mt-6 text-right">
+                <button id="view-pipeline-btn" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 focus:outline-none">
+                    View Pipeline Diagram
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pipeline diagram modal -->
+    <div id="pipeline-modal" class="pipeline-modal">
+        <div class="pipeline-content">
+            <span class="close-pipeline">&times;</span>
+            <iframe id="pipeline-iframe" class="pipeline-iframe" src=""></iframe>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const chatContainer = document.getElementById('chat-container');
+            const messageInput = document.getElementById('message-input');
+            const sendBtn = document.getElementById('send-btn');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const serverBlocks = document.querySelectorAll('.server-block');
+            
+            // Server information
+            const serverInfo = {
+                cagrag: {
+                    title: "CAG+RAG Server",
+                    description: "Provides context-aware generation and retrieval augmented generation for answering questions about the project codebase.",
+                    examples: [
+                        "How does the agent initialization work?",
+                        "Explain the web UI implementation",
+                        "What tools are available in the system?"
+                    ],
+                    pipeline: "cag_rag_pipeline.html"
+                },
+                video: {
+                    title: "Video Generator",
+                    description: "Creates videos with customizable content and music based on your specifications.",
+                    examples: [
+                        "Create a video about a futuristic programming school",
+                        "Create a chain of videos showing a futuristic city",
+                        "Generate a video with electronic music"
+                    ],
+                    pipeline: "video_gen_pipeline.html"
+                },
+                voice: {
+                    title: "Voice Call Server",
+                    description: "Facilitates voice calls and transcriptions, allowing you to make phone calls and have conversations.",
+                    examples: [
+                        "Call +14155551212 and ask about availability",
+                        "Make a call to schedule an appointment",
+                        "How does the voice call system work?"
+                    ],
+                    pipeline: "call_agent_pipeline.html"
+                },
+                gmail: {
+                    title: "Gmail Server",
+                    description: "Enables email interaction through Gmail, allowing you to read and send emails.",
+                    examples: [
+                        "Check my recent emails",
+                        "Send an email to example@example.com",
+                        "Read my latest email"
+                    ],
+                    pipeline: "mail_agent_pipeline.html"
+                },
+                mlnews: {
+                    title: "ML/DL News Server",
+                    description: "Provides tools for searching and retrieving machine learning and deep learning news, trending topics, and research papers.",
+                    examples: [
+                        "What are the latest developments in transformer models?",
+                        "Show me trending ML topics",
+                        "Find research papers about generative AI"
+                    ],
+                    pipeline: null
+                }
+            };
+            
+            // Modal elements
+            const modal = document.getElementById('server-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDescription = document.getElementById('modal-description');
+            const modalExamples = document.getElementById('modal-examples');
+            const modalIconContainer = document.getElementById('modal-icon-container');
+            const closeModal = document.querySelector('.close-modal');
+            const viewPipelineBtn = document.getElementById('view-pipeline-btn');
+            
+            // Pipeline modal elements
+            const pipelineModal = document.getElementById('pipeline-modal');
+            const pipelineIframe = document.getElementById('pipeline-iframe');
+            const closePipeline = document.querySelector('.close-pipeline');
+            
+            let currentServer = null;
+            
+            // Disable the input and button initially
+            messageInput.disabled = true;
+            sendBtn.disabled = true;
+            
+            // Poll for agent status
+            function checkAgentStatus() {
+                fetch('/status')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'ready') {
+                            statusDot.classList.remove('bg-yellow-400');
+                            statusDot.classList.add('bg-green-500');
+                            statusText.textContent = 'Ready';
+                            messageInput.disabled = false;
+                            sendBtn.disabled = false;
+                            
+                            // Add a welcome message
+                            addAgentMessage("I'm ready to help you! Click on any server block to learn what it can do or to view its pipeline diagram.");
+                            
+                            // Stop polling once ready
+                            clearInterval(statusInterval);
+                        } else if (data.status === 'error') {
+                            statusDot.classList.remove('bg-yellow-400');
+                            statusDot.classList.add('bg-red-500');
+                            statusText.textContent = 'Error';
+                            addAgentMessage(`Error initializing the agent: ${data.message}`);
+                            clearInterval(statusInterval);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking status:', error);
+                    });
+            }
+            
+            // Check status every 2 seconds
+            const statusInterval = setInterval(checkAgentStatus, 2000);
+            checkAgentStatus(); // Check immediately on load
+            
+            // Server block click handler
+            serverBlocks.forEach(block => {
+                block.addEventListener('click', function() {
+                    const serverId = this.getAttribute('data-server');
+                    const info = serverInfo[serverId];
+                    
+                    if (info) {
+                        currentServer = serverId;
+                        
+                        // Set modal content
+                        modalTitle.textContent = info.title;
+                        modalDescription.textContent = info.description;
+                        
+                        // Clear and populate examples
+                        modalExamples.innerHTML = '';
+                        info.examples.forEach(example => {
+                            const li = document.createElement('li');
+                            li.textContent = example;
+                            li.classList.add('cursor-pointer', 'hover:text-indigo-400');
+                            li.addEventListener('click', function() {
+                                if (messageInput.disabled) return;
+                                messageInput.value = this.textContent;
+                                modal.style.display = 'none';
+                                sendMessage();
+                            });
+                            modalExamples.appendChild(li);
+                        });
+                        
+                        // Clone the SVG icon
+                        modalIconContainer.innerHTML = '';
+                        const iconClone = this.querySelector('.server-icon').cloneNode(true);
+                        iconClone.classList.add('modal-icon');
+                        modalIconContainer.appendChild(iconClone);
+                        
+                        // Show/hide pipeline button based on availability
+                        if (info.pipeline) {
+                            viewPipelineBtn.style.display = 'inline-block';
+                        } else {
+                            viewPipelineBtn.style.display = 'none';
+                        }
+                        
+                        // Show the modal
+                        modal.style.display = 'block';
+                    }
+                });
+            });
+            
+            // View Pipeline button click handler
+            viewPipelineBtn.addEventListener('click', function() {
+                if (currentServer && serverInfo[currentServer].pipeline) {
+                    const pipelinePath = '/step1/' + serverInfo[currentServer].pipeline;
+                    pipelineIframe.src = pipelinePath;
+                    modal.style.display = 'none';
+                    pipelineModal.style.display = 'block';
+                }
+            });
+            
+            // Close modals when clicking the X
+            closeModal.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            closePipeline.addEventListener('click', function() {
+                pipelineModal.style.display = 'none';
+            });
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+                if (event.target === pipelineModal) {
+                    pipelineModal.style.display = 'none';
+                }
+            });
+            
+            // Handle sending messages
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (!message) return;
+                
+                // Add user message to chat
+                addUserMessage(message);
+                
+                // Clear input
+                messageInput.value = '';
+                
+                // Show typing indicator
+                typingIndicator.classList.remove('hidden');
+                
+                // Send to server
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide typing indicator
+                    typingIndicator.classList.add('hidden');
+                    
+                    if (data.error) {
+                        addAgentMessage(`Error: ${data.error}`);
+                    } else {
+                        addAgentMessage(data.response);
+                    }
+                })
+                .catch(error => {
+                    typingIndicator.classList.add('hidden');
+                    console.error('Error sending message:', error);
+                    addAgentMessage('Sorry, there was an error processing your request.');
+                });
+            }
+            
+            // Add user message to chat
+            function addUserMessage(message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'flex justify-end mb-4';
+                messageElement.innerHTML = `
+                    <div class="message-bubble user-message py-3 px-4">
+                        ${formatMessage(message)}
+                    </div>
+                `;
+                chatContainer.appendChild(messageElement);
+                scrollToBottom();
+            }
+            
+            // Add agent message to chat
+            function addAgentMessage(message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'flex mb-4';
+                messageElement.innerHTML = `
+                    <div class="flex-shrink-0 mr-2">
+                        <div class="bg-indigo-900 rounded-full p-2">
+                            <i class="fas fa-robot text-indigo-400 text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="message-bubble agent-message py-3 px-4">
+                        ${formatMessage(message)}
+                    </div>
+                `;
+                chatContainer.appendChild(messageElement);
+                scrollToBottom();
+            }
+            
+            // Format message to handle code blocks, links, etc.
+            function formatMessage(message) {
+                // Handle code blocks
+                message = message.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+                
+                // Handle inline code
+                message = message.replace(/`([^`]+)`/g, '<code>$1</code>');
+                
+                // Handle links
+                message = message.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="text-blue-400 hover:underline">$1</a>');
+                
+                // Handle line breaks
+                message = message.replace(/\n/g, '<br>');
+                
+                return message;
+            }
+            
+            // Scroll chat to bottom
+            function scrollToBottom() {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            // Event listeners
+            sendBtn.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

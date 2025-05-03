@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAG+RAG Pipeline</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0;
+            background-color: #121212; 
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        svg { 
+            max-width: 100%; 
+            height: auto; 
+            display: block;
+            margin: 0 auto;
+            background-color: #121212;
+        }
+        .title { 
+            font-size: 28px; 
+            text-align: center; 
+            margin: 30px 0;
+            color: #ffffff; 
+            font-weight: 300;
+        }
+        .subtitle { 
+            font-size: 20px; 
+            text-align: center; 
+            margin-bottom: 40px;
+            color: #bdbdbd; 
+            font-weight: 300;
+        }
+        .system-type {
+            font-size: 22px;
+            fill: #ffffff;
+            font-weight: 300;
+        }
+        .node {
+            fill: #121212;
+            stroke-width: 1.5;
+            stroke-opacity: 0.8;
+        }
+        .node-label {
+            font-size: 12px;
+            fill: #ffffff;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        .connector {
+            stroke-width: 1.5;
+            stroke-opacity: 0.7;
+            fill: none;
+        }
+        .connector-dot {
+            fill: #ffffff;
+            fill-opacity: 0.8;
+        }
+        .explanation {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .explanation h2 {
+            color: #ffffff;
+            font-weight: 300;
+            margin-top: 0;
+        }
+        .explanation p, .explanation li {
+            color: #bdbdbd;
+        }
+        .section-area {
+            fill: #1e1e1e;
+            opacity: 0.3;
+            rx: 15;
+            ry: 15;
+        }
+        .section-label {
+            font-size: 16px;
+            fill: #ffffff;
+            font-weight: 300;
+            text-anchor: middle;
+        }
+        .agent-group {
+            stroke: #ffffff;
+            stroke-width: 1;
+            stroke-dasharray: 4,2;
+            stroke-opacity: 0.4;
+            fill: none;
+            rx: 15;
+            ry: 15;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Cache Augmented Generation + Retrieval Augmented Generation</h1>
+        <h2 class="subtitle">Agentic Architecture</h2>
+        
+        <svg width="1000" height="700" xmlns="http://www.w3.org/2000/svg">
+            <!-- Main System Title -->
+            <text x="500" y="40" class="system-type" text-anchor="middle">Multi-Agent Knowledge System</text>
+            
+            <!-- Section Areas -->
+            <rect x="50" y="60" width="900" height="120" class="section-area" fill="#3498db" />
+            <rect x="50" y="200" width="300" height="380" class="section-area" fill="#e74c3c" />
+            <rect x="370" y="200" width="260" height="380" class="section-area" fill="#2ecc71" />
+            <rect x="650" y="200" width="300" height="380" class="section-area" fill="#f39c12" />
+            
+            <!-- Section Labels -->
+            <text x="500" y="80" class="section-label">USER INTERACTION LAYER</text>
+            <text x="200" y="220" class="section-label">AGENT FRAMEWORK</text>
+            <text x="500" y="220" class="section-label">MCP PROTOCOL LAYER</text>
+            <text x="800" y="220" class="section-label">KNOWLEDGE SYSTEM</text>
+            
+            <!-- User Node -->
+            <circle cx="100" cy="130" r="30" class="node" stroke="#4fc3f7" />
+            <text x="100" y="130" class="node-label" font-size="20">👤</text>
+            <text x="100" y="175" class="node-label">User</text>
+            
+            <!-- Web UI Node -->
+            <circle cx="250" cy="100" r="25" class="node" stroke="#3498db" />
+            <text x="250" y="100" class="node-label" font-size="16">🌐</text>
+            <text x="250" y="135" class="node-label">web_ui.py</text>
+            
+            <!-- CLI Node -->
+            <circle cx="350" cy="100" r="25" class="node" stroke="#3498db" />
+            <text x="350" y="100" class="node-label" font-size="16">⌨️</text>
+            <text x="350" y="135" class="node-label">agent.py</text>
+            
+            <!-- Core Agent Node -->
+            <circle cx="450" cy="130" r="30" class="node" stroke="#81c784" />
+            <text x="450" y="130" class="node-label" font-size="20">🤖</text>
+            <text x="450" y="175" class="node-label">ToolCallingAgent</text>
+            
+            <!-- Tool Collection Node -->
+            <circle cx="200" cy="300" r="30" class="node" stroke="#ffb74d" />
+            <text x="200" y="300" class="node-label" font-size="18">🔧</text>
+            <text x="200" y="345" class="node-label">ToolCollection</text>
+            
+            <!-- LLM Node -->
+            <circle cx="200" cy="400" r="25" class="node" stroke="#e67e22" />
+            <text x="200" y="400" class="node-label" font-size="16">🧠</text>
+            <text x="200" y="435" class="node-label">LiteLLMModel</text>
+            
+            <!-- Finance Tools Node -->
+            <circle cx="120" cy="480" r="20" class="node" stroke="#1abc9c" />
+            <text x="120" y="480" class="node-label" font-size="14">💰</text>
+            <text x="120" y="510" class="node-label">Finance</text>
+            
+            <!-- Gmail Tools Node -->
+            <circle cx="200" cy="480" r="20" class="node" stroke="#1abc9c" />
+            <text x="200" y="480" class="node-label" font-size="14">📧</text>
+            <text x="200" y="510" class="node-label">Gmail</text>
+            
+            <!-- Voice Tools Node -->
+            <circle cx="120" cy="550" r="20" class="node" stroke="#1abc9c" />
+            <text x="120" y="550" class="node-label" font-size="14">🔊</text>
+            <text x="120" y="580" class="node-label">Voice</text>
+            
+            <!-- Video Tools Node -->
+            <circle cx="200" cy="550" r="20" class="node" stroke="#1abc9c" />
+            <text x="200" y="550" class="node-label" font-size="14">🎬</text>
+            <text x="200" y="580" class="node-label">Video</text>
+            
+            <!-- MCP Nodes -->
+            <circle cx="500" cy="300" r="30" class="node" stroke="#2ecc71" />
+            <text x="500" y="300" class="node-label" font-size="18">⚙️</text>
+            <text x="500" y="345" class="node-label">StdioServerParameters</text>
+            
+            <circle cx="500" cy="420" r="30" class="node" stroke="#2ecc71" />
+            <text x="500" y="420" class="node-label" font-size="18">🔄</text>
+            <text x="500" y="465" class="node-label">FastMCP</text>
+            
+            <!-- Knowledge System Nodes -->
+            <circle cx="800" cy="300" r="30" class="node" stroke="#f39c12" />
+            <text x="800" y="300" class="node-label" font-size="18">📡</text>
+            <text x="800" y="345" class="node-label">cag_rag_server.py</text>
+            
+            <circle cx="800" cy="420" r="30" class="node" stroke="#f39c12" />
+            <text x="800" y="420" class="node-label" font-size="18">🔍</text>
+            <text x="800" y="465" class="node-label">cag_rag.py</text>
+            
+            <!-- Knowledge Storage Nodes -->
+            <circle cx="740" cy="540" r="30" class="node" stroke="#3498db" />
+            <text x="740" y="540" class="node-label" font-size="18">💾</text>
+            <text x="740" y="580" class="node-label">Cache</text>
+            
+            <circle cx="860" cy="540" r="30" class="node" stroke="#9b59b6" />
+            <text x="860" y="540" class="node-label" font-size="18">🧮</text>
+            <text x="860" y="580" class="node-label">FAISS</text>
+            
+            <!-- Connection dots -->
+            <circle cx="170" cy="130" r="4" class="connector-dot" />
+            <circle cx="525" cy="130" r="4" class="connector-dot" />
+            <circle cx="590" cy="130" r="4" class="connector-dot" />
+            <circle cx="655" cy="130" r="4" class="connector-dot" />
+            
+            <!-- Connections -->
+            <line x1="130" y1="130" x2="170" y2="130" class="connector" stroke="#ffffff" />
+            <line x1="170" y1="130" x2="240" y2="105" class="connector" stroke="#ffffff" />
+            <line x1="170" y1="130" x2="240" y2="130" class="connector" stroke="#ffffff" />
+            <line x1="280" y1="100" x2="325" y2="100" class="connector" stroke="#ffffff" />
+            <line x1="375" y1="100" x2="440" y2="125" class="connector" stroke="#ffffff" />
+            <line x1="450" y1="160" x2="450" y2="250" class="connector" stroke="#ffffff" />
+            <line x1="450" y1="250" x2="200" y2="270" class="connector" stroke="#ffffff" />
+            
+            <line x1="200" y1="330" x2="200" y2="375" class="connector" stroke="#ffb74d" />
+            <line x1="185" y1="330" x2="120" y2="460" class="connector" stroke="#ffb74d" />
+            <line x1="200" y1="330" x2="200" y2="460" class="connector" stroke="#ffb74d" />
+            <line x1="185" y1="330" x2="120" y2="530" class="connector" stroke="#ffb74d" />
+            <line x1="215" y1="330" x2="200" y2="530" class="connector" stroke="#ffb74d" />
+            
+            <line x1="230" y1="300" x2="470" y2="300" class="connector" stroke="#ffffff" />
+            <line x1="500" y1="330" x2="500" y2="390" class="connector" stroke="#2ecc71" />
+            <line x1="530" y1="300" x2="770" y2="300" class="connector" stroke="#ffffff" />
+            <line x1="530" y1="420" x2="770" y2="420" class="connector" stroke="#ffffff" />
+            
+            <line x1="800" y1="330" x2="800" y2="390" class="connector" stroke="#f39c12" />
+            <line x1="780" y1="450" x2="750" y2="510" class="connector" stroke="#f39c12" />
+            <line x1="820" y1="450" x2="850" y2="510" class="connector" stroke="#f39c12" />
+            
+            <!-- Agent System Boundary -->
+            <rect x="80" y="80" width="840" height="520" rx="20" class="agent-group" />
+            
+            <!-- Patterns -->
+            <text x="100" y="620" class="system-type">Architecture Patterns</text>
+            
+            <!-- Cache Pattern -->
+            <circle cx="160" cy="650" r="15" class="node" stroke="#ffffff" />
+            <circle cx="230" cy="650" r="15" class="node" stroke="#ffffff" />
+            <rect x="140" cy="680" width="40" height="20" rx="5" class="node" stroke="#ffffff" />
+            <line x1="175" y1="650" x2="215" y2="650" class="connector" stroke="#ffffff" />
+            <line x1="160" y1="665" x2="160" y2="680" class="connector" stroke="#ffffff" />
+            <text x="195" y="695" class="node-label">Cache Augmentation</text>
+            
+            <!-- Vector Search Pattern -->
+            <circle cx="400" cy="650" r="15" class="node" stroke="#ffffff" />
+            <circle cx="450" cy="625" r="10" class="node" stroke="#ffffff" />
+            <circle cx="475" cy="650" r="10" class="node" stroke="#ffffff" />
+            <circle cx="450" cy="675" r="10" class="node" stroke="#ffffff" />
+            <line x1="415" y1="650" x2="440" y2="625" class="connector" stroke="#ffffff" />
+            <line x1="415" y1="650" x2="465" y2="650" class="connector" stroke="#ffffff" />
+            <line x1="415" y1="650" x2="440" y2="675" class="connector" stroke="#ffffff" />
+            <text x="435" y="695" class="node-label">Vector Search</text>
+            
+            <!-- Memory Retrieval Pattern -->
+            <circle cx="600" cy="650" r="15" class="node" stroke="#ffffff" />
+            <circle cx="650" cy="620" r="15" class="node" stroke="#ffffff" />
+            <circle cx="650" cy="680" r="15" class="node" stroke="#ffffff" />
+            <line x1="615" y1="650" x2="635" y2="620" class="connector" stroke="#ffffff" />
+            <line x1="615" y1="650" x2="635" y2="680" class="connector" stroke="#ffffff" />
+            <text x="625" y="695" class="node-label">Memory Retrieval</text>
+        </svg>
+        
+        <div class="explanation">
+            <h2>CAG+RAG Knowledge System Architecture</h2>
+            <p>This diagram illustrates the multi-agent architecture for the Cache Augmented Generation (CAG) and Retrieval Augmented Generation (RAG) knowledge system:</p>
+            
+            <p><strong>Key Components:</strong></p>
+            <ul>
+                <li><strong>ToolCallingAgent:</strong> The central orchestrator that processes user queries and coordinates knowledge retrieval</li>
+                <li><strong>ToolCollection:</strong> Manages the available tools including specialized knowledge tools</li>
+                <li><strong>cag_rag_server.py:</strong> Provides an MCP-compatible interface for knowledge operations</li>
+                <li><strong>cag_rag.py:</strong> Core implementation that orchestrates cache and retrieval operations</li>
+            </ul>
+            
+            <p><strong>Knowledge Storage:</strong></p>
+            <ul>
+                <li><strong>Cache:</strong> Stores previous responses for faster retrieval and consistent answers</li>
+                <li><strong>FAISS:</strong> Vector database that enables efficient semantic search through embeddings</li>
+            </ul>
+            
+            <p><strong>Architecture Patterns Used:</strong></p>
+            <ul>
+                <li><strong>Cache Augmentation:</strong> Enhances responses by retrieving from previous similar interactions</li>
+                <li><strong>Vector Search:</strong> Uses embedding similarity to find relevant knowledge</li>
+                <li><strong>Memory Retrieval:</strong> Combines multiple knowledge sources to generate better responses</li>
+            </ul>
+            
+            <p>This architecture enables the system to provide enhanced responses by combining LLM capabilities with cached previous responses and vector search for contextual understanding. The entire pipeline functions as a cohesive agent system that integrates with multiple user interfaces (web and CLI) and provides efficient knowledge retrieval through standardized communication protocols.</p>
+        </div>
+    </div>
+</body>
+</html> 

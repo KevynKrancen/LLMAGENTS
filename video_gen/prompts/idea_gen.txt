@@ -1,0 +1,25 @@
+**IMPORTANT INSTRUCTION:**
+If a specific theme is provided below, YOU MUST follow it for the generated idea and prompt. The examples below are only for structural guidance; the provided theme takes precedence.
+{theme_context} # If a theme is provided, it will appear here. FOLLOW IT.
+
+Based on the Video Requirements below and the specific theme provided above (if any), create ONE video idea and a corresponding detailed prompt.
+
+Video Requirements:
+1. POV Style: The video should feel like it's seen through someone's eyes. Describe the actions and environment from this first-person perspective.
+2. Emotion/Mood: Convey a specific feeling (e.g., mystery, awe, excitement, tranquility).
+3. Narrative Arc: Include a brief story or progression, even if simple (e.g., discovery, journey, reaction).
+4. Visual Detail: Provide rich visual descriptions for the scene, lighting, and key elements.
+5. Avoid Clichés: Steer clear of overly common tropes (e.g., generic space exploration, typical zombie apocalypse). Aim for originality.
+
+Example 1: Idea: POV: You are entering a secret vampire gathering in Vienna, 1722 Prompt: Point of view of your pale, gloved hands—delicate yet cold, clutching a blood-red velvet cloak clasped with a silver bat brooch. a towering iron gate as moonlight streams through stained glass. Inside, shadowed figures in embroidered frock coats and dark silk gowns whisper beneath chandeliers dripping with wax. A goblet of crimson swirls in your hand as music drifts from a harpsichord, ultra-realistic photo, cinematic lighting, 4K, dynamic POV camera, gothic baroque palette (black velvet, blood red, silver, candle-gold), light film grain with subtle flicker. 
+
+Example 2: Idea: POV: You are walking into a witch's sabbath in the Black Forest, 1603 Prompt: Point of view of your dirt-streaked hands—etched with ritual runes in ash and wine, clutching a twisted wooden staff. Firelight flickers on fur-lined cloaks, bone charms, and horned masks as the coven gathers beneath a full moon. The scent of smoke, herbs, and something ancient lingers in the cold mist. A circle of stones pulses faintly beneath your bare feet—ultra-realistic photo, cinematic lighting, 4K, dynamic POV camera, occult forest palette (charcoal, moss green, blood rust, bone white), heavy atmosphere with soft haze and ember flicker.
+
+Example 3: Idea: POV: You are a Hexer weaving a dark enchantment under the bleeding shadows of a lunar eclipse, Carpathian Mountains, 1566. Prompt: Point of view of your rune-etched hands—one tracing arcane symbols in the air, the other clutching an obsidian dagger. The cold breeze whistles through ancient pines, carrying whispers of forgotten incantations. Moonlight filters crimson through the eclipse, casting eerie patterns on the forest floor where a circle of ancient stones hum with latent power. Shadows of crows flit across the blood-red sky, their cries echoing among the towering peaks. The air is thick with the scent of nightshade and pine as the earth trembles beneath your encircling spells—ultra-realistic photo, cinematic lighting, 4K, dynamic POV camera, Carpathian night palette (shadow black, crimson moon, obsidian gray, spectral silver), dense atmosphere with swirling mist and lunar shimmer.
+
+Example 4: Idea: POV: You are a druidic guardian performing an ancient binding ritual to protect the sacred groves from an encroaching blight, Gaul, 453 AD. Prompt: Point of view of your earth-stained hands—one encircling a twisted oak staff embedded with quartz, the other delicately arranging sacred herbs upon a stone altar. The grove is steeped in twilight, thick with the aroma of damp earth and crushed foliage. Silver moonlight filters through sprawling branches, casting intricate patterns upon the forest floor. Around you, carved stones hum with an ancient energy as ethereal wisps of green and gold coil in the air. The chant of unseen participants rises in harmony with the whispering leaves, and the pulse of the land beats beneath your bare feet—ultra-realistic photo, cinematic lighting, 4K, dynamic POV camera, druidic mystical palette (deep forest green, earth brown, shimmering quartz, twilight silver), serene atmosphere with gentle mists and luminescent tendrils.
+
+Create a ONE similar idea that includes {theme_context} and similar archetypes connected to the theme + prompt in the same format and style of the examples:
+
+Idea: [A concise description of the video idea (max 2 sentences)]
+Prompt: [A detailed prompt describing the POV scene, suitable for an image generator]

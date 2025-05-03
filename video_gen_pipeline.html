@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Generation Pipeline</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0;
+            background-color: #121212; 
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        svg { 
+            max-width: 100%; 
+            height: auto; 
+            display: block;
+            margin: 0 auto;
+            background-color: #121212;
+        }
+        .title { 
+            font-size: 28px; 
+            text-align: center; 
+            margin: 30px 0;
+            color: #ffffff; 
+            font-weight: 300;
+        }
+        .subtitle { 
+            font-size: 20px; 
+            text-align: center; 
+            margin-bottom: 40px;
+            color: #bdbdbd; 
+            font-weight: 300;
+        }
+        .system-type {
+            font-size: 22px;
+            fill: #ffffff;
+            font-weight: 300;
+        }
+        .node-circle {
+            stroke-width: 1.5;
+            stroke-opacity: 0.8;
+        }
+        .node-label {
+            font-size: 12px;
+            fill: #ffffff;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        .node-icon {
+            font-size: 20px;
+            fill: #ffffff;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+        .edge {
+            stroke-width: 1.5;
+            stroke-opacity: 0.7;
+        }
+        .edge-dot {
+            fill: #ffffff;
+            fill-opacity: 0.8;
+        }
+        .pattern-title {
+            font-size: 20px;
+            fill: #ffffff;
+            font-weight: 300;
+            text-anchor: start;
+        }
+        .explanation {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .explanation h2 {
+            color: #ffffff;
+            font-weight: 300;
+            margin-top: 0;
+        }
+        .explanation p, .explanation li {
+            color: #bdbdbd;
+        }
+        .agent-group {
+            stroke: #ffffff;
+            stroke-width: 1;
+            stroke-dasharray: 4 2;
+            fill: none;
+            stroke-opacity: 0.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Agentic Architecture</h1>
+        <h2 class="subtitle">Video Generation Pipeline</h2>
+        
+        <svg width="1000" height="700" xmlns="http://www.w3.org/2000/svg">
+            <!-- System Types Labels -->
+            <text x="225" y="40" class="system-type">Single Agent</text>
+            <text x="725" y="40" class="system-type">Multi-Agent System</text>
+            
+            <!-- Dividing line -->
+            <line x1="500" y1="20" x2="500" y2="680" stroke="#333333" stroke-width="2" />
+            
+            <!-- Single Agent System -->
+            <g transform="translate(100, 120)">
+                <!-- User Node -->
+                <circle cx="40" cy="100" r="30" class="node-circle" fill="#121212" stroke="#4fc3f7" />
+                <text x="40" y="100" class="node-icon">👤</text>
+                <text x="40" y="145" class="node-label">User</text>
+                
+                <!-- Connection dots -->
+                <circle cx="100" cy="100" r="4" class="edge-dot" />
+                <circle cx="160" cy="100" r="4" class="edge-dot" />
+                
+                <!-- Agent Node -->
+                <circle cx="220" cy="100" r="30" class="node-circle" fill="#121212" stroke="#81c784" />
+                <text x="220" y="100" class="node-icon">🤖</text>
+                <text x="220" y="145" class="node-label">AI Agent</text>
+                
+                <!-- Memory Node -->
+                <circle cx="220" cy="0" r="25" class="node-circle" fill="#121212" stroke="#ba68c8" />
+                <text x="220" y="0" class="node-icon">🧠</text>
+                <text x="220" y="35" class="node-label">Memory</text>
+                
+                <!-- Tools Node -->
+                <circle cx="220" cy="200" r="25" class="node-circle" fill="#121212" stroke="#ffb74d" />
+                <text x="220" y="200" class="node-icon">🔧</text>
+                <text x="220" y="235" class="node-label">Tools</text>
+                
+                <!-- Connections -->
+                <line x1="70" y1="100" x2="190" y2="100" class="edge" stroke="#ffffff" />
+                <line x1="220" y1="70" x2="220" y2="25" class="edge" stroke="#ba68c8" />
+                <line x1="220" y1="130" x2="220" y2="175" class="edge" stroke="#ffb74d" />
+                
+                <!-- Pattern Title -->
+                <text x="0" y="280" class="pattern-title">Simple LLM + Tools</text>
+            </g>
+            
+            <!-- Multi Agent System -->
+            <g transform="translate(550, 100)">
+                <!-- User Node -->
+                <circle cx="40" cy="0" r="30" class="node-circle" fill="#121212" stroke="#4fc3f7" />
+                <text x="40" y="0" class="node-icon">👤</text>
+                <text x="40" y="45" class="node-label">User</text>
+                
+                <!-- Core Agent Node -->
+                <circle cx="150" cy="100" r="35" class="node-circle" fill="#121212" stroke="#81c784" />
+                <text x="150" y="100" class="node-icon">🤖</text>
+                <text x="150" y="145" class="node-label">Orchestrator</text>
+                
+                <!-- Connection dots -->
+                <circle cx="90" cy="50" r="4" class="edge-dot" />
+                
+                <!-- Video Gen Agent -->
+                <circle cx="40" cy="200" r="30" class="node-circle" fill="#121212" stroke="#81c784" />
+                <text x="40" y="200" class="node-icon">🎬</text>
+                <text x="40" y="245" class="node-label">Video Gen</text>
+                
+                <!-- Prompt Agent -->
+                <circle cx="150" cy="280" r="30" class="node-circle" fill="#121212" stroke="#81c784" />
+                <text x="150" y="280" class="node-icon">✍️</text>
+                <text x="150" y="325" class="node-label">Prompt Agent</text>
+                
+                <!-- Image Agent -->
+                <circle cx="260" cy="200" r="30" class="node-circle" fill="#121212" stroke="#81c784" />
+                <text x="260" y="200" class="node-icon">🖼️</text>
+                <text x="260" y="245" class="node-label">Image Agent</text>
+                
+                <!-- Audio Agent -->
+                <circle cx="325" cy="100" r="30" class="node-circle" fill="#121212" stroke="#81c784" />
+                <text x="325" y="100" class="node-icon">🎵</text>
+                <text x="325" y="145" class="node-label">Audio Agent</text>
+                
+                <!-- Memory Node -->
+                <circle cx="150" cy="0" r="25" class="node-circle" fill="#121212" stroke="#ba68c8" />
+                <text x="150" y="0" class="node-icon">🧠</text>
+                <text x="150" y="35" class="node-label">Memory</text>
+                
+                <!-- Tool Nodes -->
+                <circle cx="40" cy="100" r="20" class="node-circle" fill="#121212" stroke="#ffb74d" />
+                <text x="40" y="100" class="node-icon">🔧</text>
+                <text x="40" y="130" class="node-label">Tools</text>
+                
+                <circle cx="260" cy="100" r="20" class="node-circle" fill="#121212" stroke="#ffb74d" />
+                <text x="260" y="100" class="node-icon">🔧</text>
+                <text x="260" y="130" class="node-label">Tools</text>
+                
+                <circle cx="260" cy="280" r="20" class="node-circle" fill="#121212" stroke="#ffb74d" />
+                <text x="260" y="280" class="node-icon">🔧</text>
+                <text x="260" y="310" class="node-label">Tools</text>
+                
+                <circle cx="40" cy="280" r="20" class="node-circle" fill="#121212" stroke="#ffb74d" />
+                <text x="40" y="280" class="node-icon">🔧</text>
+                <text x="40" y="310" class="node-label">Tools</text>
+                
+                <!-- Connections between agents -->
+                <line x1="40" y1="0" x2="90" y2="50" class="edge" stroke="#4fc3f7" />
+                <line x1="90" y1="50" x2="150" y2="65" class="edge" stroke="#4fc3f7" />
+                <line x1="150" y1="35" x2="150" y2="65" class="edge" stroke="#ba68c8" />
+                
+                <line x1="150" y1="135" x2="150" y2="250" class="edge" stroke="#81c784" />
+                <line x1="70" y1="200" x2="120" y2="100" class="edge" stroke="#81c784" />
+                <line x1="185" y1="100" x2="230" y2="200" class="edge" stroke="#81c784" />
+                <line x1="185" y1="100" x2="295" y2="100" class="edge" stroke="#81c784" />
+                
+                <!-- Tool connections -->
+                <line x1="40" y1="120" x2="40" y2="170" class="edge" stroke="#ffb74d" />
+                <line x1="260" y1="120" x2="260" y2="170" class="edge" stroke="#ffb74d" />
+                <line x1="70" y1="280" x2="120" y2="280" class="edge" stroke="#ffb74d" />
+                <line x1="180" y1="280" x2="240" y2="280" class="edge" stroke="#ffb74d" />
+                
+                <!-- Group boxes -->
+                <rect x="0" y="160" width="80" height="160" rx="10" class="agent-group" />
+                <rect x="110" y="240" width="190" height="110" rx="10" class="agent-group" />
+                <rect x="220" y="160" width="80" height="160" rx="10" class="agent-group" />
+                <rect x="285" y="60" width="80" height="80" rx="10" class="agent-group" />
+                
+                <!-- Pattern Title -->
+                <text x="0" y="380" class="pattern-title">Hierarchical + Shared Tools</text>
+            </g>
+            
+            <!-- Output Section -->
+            <g transform="translate(100, 450)">
+                <!-- Title -->
+                <text x="0" y="40" class="pattern-title">Pipeline Patterns</text>
+                
+                <!-- Sequential -->
+                <g transform="translate(0, 80)">
+                    <text x="0" y="0" class="node-label" text-anchor="start">Sequential</text>
+                    <circle cx="100" cy="0" r="4" class="edge-dot" />
+                    <text x="80" y="0" class="node-label" text-anchor="end">In</text>
+                    
+                    <circle cx="150" cy="0" r="20" class="node-circle" fill="#121212" stroke="#81c784" />
+                    <text x="150" y="0" class="node-icon">🤖</text>
+                    
+                    <circle cx="200" cy="0" r="4" class="edge-dot" />
+                    
+                    <circle cx="250" cy="0" r="20" class="node-circle" fill="#121212" stroke="#81c784" />
+                    <text x="250" y="0" class="node-icon">🤖</text>
+                    
+                    <circle cx="300" cy="0" r="4" class="edge-dot" />
+                    <text x="320" y="0" class="node-label" text-anchor="start">Out</text>
+                    
+                    <line x1="100" y1="0" x2="130" y2="0" class="edge" stroke="#ffffff" />
+                    <line x1="170" y1="0" x2="230" y2="0" class="edge" stroke="#ffffff" />
+                    <line x1="270" y1="0" x2="300" y2="0" class="edge" stroke="#ffffff" />
+                </g>
+                
+                <!-- Loop -->
+                <g transform="translate(0, 140)">
+                    <text x="0" y="0" class="node-label" text-anchor="start">Loop</text>
+                    <circle cx="100" cy="0" r="4" class="edge-dot" />
+                    <text x="80" y="0" class="node-label" text-anchor="end">In</text>
+                    
+                    <circle cx="150" cy="0" r="20" class="node-circle" fill="#121212" stroke="#81c784" />
+                    <text x="150" y="0" class="node-icon">🤖</text>
+                    
+                    <circle cx="200" cy="0" r="4" class="edge-dot" />
+                    
+                    <circle cx="250" cy="0" r="20" class="node-circle" fill="#121212" stroke="#81c784" />
+                    <text x="250" y="0" class="node-icon">🤖</text>
+                    
+                    <circle cx="300" cy="0" r="4" class="edge-dot" />
+                    <text x="320" y="0" class="node-label" text-anchor="start">Out</text>
+                    
+                    <line x1="100" y1="0" x2="130" y2="0" class="edge" stroke="#ffffff" />
+                    <line x1="170" y1="0" x2="230" y2="0" class="edge" stroke="#ffffff" />
+                    <line x1="270" y1="0" x2="300" y2="0" class="edge" stroke="#ffffff" />
+                    <path d="M 270 -10 C 290 -30 280 -50 200 -50 C 120 -50 110 -30 130 -10" fill="none" class="edge" stroke="#ffffff" />
+                </g>
+                
+                <!-- Parallel -->
+                <g transform="translate(400, 80)">
+                    <text x="0" y="0" class="node-label" text-anchor="start">Parallel</text>
+                    <circle cx="50" cy="0" r="4" class="edge-dot" />
+                    <text x="30" y="0" class="node-label" text-anchor="end">In</text>
+                    
+                    <circle cx="150" cy="-25" r="20" class="node-circle" fill="#121212" stroke="#81c784" />
+                    <text x="150" y="-25" class="node-icon">🤖</text>
+                    
+                    <circle cx="150" cy="25" r="20" class="node-circle" fill="#121212" stroke="#81c784" />
+                    <text x="150" y="25" class="node-icon">🤖</text>
+                    
+                    <circle cx="250" cy="0" r="4" class="edge-dot" />
+                    <text x="270" y="0" class="node-label" text-anchor="start">Out</text>
+                    
+                    <line x1="50" y1="0" x2="95" y2="-25" class="edge" stroke="#ffffff" />
+                    <line x1="50" y1="0" x2="95" y2="25" class="edge" stroke="#ffffff" />
+                    <line x1="170" y1="-25" x2="215" y2="0" class="edge" stroke="#ffffff" />
+                    <line x1="170" y1="25" x2="215" y2="0" class="edge" stroke="#ffffff" />
+                    <line x1="215" y1="0" x2="250" y2="0" class="edge" stroke="#ffffff" />
+                </g>
+                
+                <!-- Aggregator -->
+                <g transform="translate(400, 140)">
+                    <text x="0" y="0" class="node-label" text-anchor="start">Aggregator</text>
+                    <circle cx="50" cy="-25" r="4" class="edge-dot" />
+                    <text x="30" y="-25" class="node-label" text-anchor="end">In</text>
+                    
+                    <circle cx="50" cy="25" r="4" class="edge-dot" />
+                    <text x="30" y="25" class="node-label" text-anchor="end">In</text>
+                    
+                    <circle cx="150" cy="0" r="20" class="node-circle" fill="#121212" stroke="#81c784" />
+                    <text x="150" y="0" class="node-icon">🤖</text>
+                    
+                    <circle cx="250" cy="0" r="4" class="edge-dot" />
+                    <text x="270" y="0" class="node-label" text-anchor="start">Out</text>
+                    
+                    <line x1="50" y1="-25" x2="130" y2="-5" class="edge" stroke="#ffffff" />
+                    <line x1="50" y1="25" x2="130" y2="5" class="edge" stroke="#ffffff" />
+                    <line x1="170" y1="0" x2="250" y2="0" class="edge" stroke="#ffffff" />
+                </g>
+            </g>
+        </svg>
+        
+        <div class="explanation">
+            <h2>Video Generation System Architecture</h2>
+            <p>This diagram illustrates the evolution from a simple single-agent system to a sophisticated multi-agent architecture for video generation:</p>
+            
+            <p><strong>Left Side - Simple Architecture:</strong> A basic setup with one AI agent interacting with the user, accessing memory and tools directly.</p>
+            
+            <p><strong>Right Side - Multi-Agent System:</strong> A hierarchical architecture with specialized agents:</p>
+            <ul>
+                <li><strong>Orchestrator Agent:</strong> Coordinates the video generation process</li>
+                <li><strong>Video Generation Agent:</strong> Handles the final assembly of video assets</li>
+                <li><strong>Prompt Agent:</strong> Creates effective prompts for content generation</li>
+                <li><strong>Image Agent:</strong> Specializes in generating and processing images</li>
+                <li><strong>Audio Agent:</strong> Creates music, sound effects, and voiceovers</li>
+            </ul>
+            
+            <p><strong>System Patterns:</strong></p>
+            <ul>
+                <li><strong>Sequential:</strong> Process flows from one agent to the next (e.g., prompt → image → audio → video)</li>
+                <li><strong>Loop:</strong> Iterative refinement between agents until quality threshold is met</li>
+                <li><strong>Parallel:</strong> Simultaneous processing of different assets (images, audio)</li>
+                <li><strong>Aggregator:</strong> Combining outputs from multiple sources into final video</li>
+            </ul>
+            
+            <p>The multi-agent system provides specialized processing at each stage, while maintaining shared tool access and central coordination.</p>
+        </div>
+    </div>
+</body>
+</html> 
