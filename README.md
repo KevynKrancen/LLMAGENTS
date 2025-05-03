@@ -1,7 +1,9 @@
 # MCP Agent System
 
-A multi-agent system implementing the Multi-agent Conversation Protocol (MCP) with various specialized server components.
+**IMPORTANT: THE MASTER AGENT IS A LOCAL AGENT! BE PRECISE WHEN ASKING QUESTIONS. Local small models have limitations with function calling and MCP protocol interpretation - they require clear, direct prompts to properly route requests to specialized agents.**
 
+A multi-agent system implementing the Multi-agent Conversation Protocol (MCP) with various specialized server components.
+![MCP Agent System Web UI](img/example.png)
 ## Components
 
 - **ML/DL News Server** - Provides tools for machine learning and deep learning news search
@@ -37,6 +39,16 @@ Two interfaces are available:
 - Example query suggestions
 - Support for code blocks and formatting
 - Works with all MCP agent capabilities
+
+![MCP Agent System Web UI Example](img/example2.png)
+
+## Agent Interactions
+
+![User Query Example](img/example3.png)
+
+![Function Calling Process](img/example4.png)
+
+![Task Completion Example](img/example5.png)
 
 ## Usage Examples
 
