@@ -12,14 +12,7 @@ This guide will walk you through setting up the MCP project environment and all 
 
 ## Environment Setup
 
-### 1. Clone or Download the Project
-
-```bash
-git clone https://github.com/yourusername/your-repo.git
-cd your-repo/step1
-```
-
-### 2. Create a Python Virtual Environment
+### 1. Create a Python Virtual Environment
 
 Using UV (recommended):
 ```bash
