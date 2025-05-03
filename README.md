@@ -60,7 +60,7 @@ The Video Generator agent creates custom AI-generated videos with specified cont
 
 Example video generated with the prompt "Create a video about a futuristic programming school with rock music":
 
-[![Video Generation Example](img/example4.png)](https://www.youtube.com/shorts/FhcaxijRXT8)
+[![Video Generation Example](img/example6.png)](https://www.youtube.com/shorts/FhcaxijRXT8)
 
 Click the image above to watch the video on YouTube.
 
