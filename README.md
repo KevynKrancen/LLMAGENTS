@@ -50,6 +50,18 @@ Two interfaces are available:
 
 ![Task Completion Example](img/example5.png)
 
+## Video Generation
+
+The Video Generator agent creates custom AI-generated videos with specified content and music. It uses:
+
+- Replicate for video frame generation
+- SonAuto for background music and audio synthesis
+- OpenAI for content creation and scripting
+
+Example video generated with the prompt "Create a video about a futuristic programming school with rock music":
+
+https://github.com/kevynkrancenblum/LLMAGENTS/blob/main/img/final_output_1746295909.mp4
+
 ## Usage Examples
 
 - Ask about ML/DL news: "What are the latest developments in transformer models?"
