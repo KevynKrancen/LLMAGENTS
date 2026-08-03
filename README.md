@@ -8,6 +8,10 @@ React Native (Expo) iPhone app with live generative UI ·
 **[`shortcuts/`](shortcuts/README.md)** — Apple Shortcuts pack for controlling
 the iPhone. Start with [assistant/README.md](assistant/README.md).
 
+Deep documentation in [`docs/assistant/`](docs/assistant/): ARCHITECTURE ·
+IMPLEMENTATION · API · SETUP · SKILLS-AND-MEMORY · UX-DESIGN · ROADMAP.
+Agent contributors: read [`CLAUDE.md`](CLAUDE.md) first.
+
 ---
 
 # MCP Agent System
