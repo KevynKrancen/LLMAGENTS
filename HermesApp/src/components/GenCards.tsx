@@ -5,6 +5,7 @@ import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Card } from '../state/chat';
 import { radius, shadow, space, type as typ } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
+import { HtmlComponentCard } from './HtmlComponentCard';
 
 function CardShell({ children }: { children: React.ReactNode }) {
   const { colors } = useTheme();
@@ -32,6 +33,9 @@ export function GenCard({ card }: { card: Card }) {
   const args = card.args as Record<string, any>;
 
   switch (card.tool) {
+    case 'render_component':
+      return <HtmlComponentCard html={String(args.html ?? '')} />;
+
     case 'show_plan_card':
       return (
         <CardShell>

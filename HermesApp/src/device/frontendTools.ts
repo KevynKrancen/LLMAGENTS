@@ -15,6 +15,25 @@ const obj = (properties: Record<string, unknown>, required: string[] = []) => ({
 
 export const FRONTEND_TOOLS: AgTool[] = [
   {
+    name: 'render_component',
+    description:
+      'Design and render a bespoke UI component inline in the chat to present your answer ' +
+      'beautifully — weather cards, inbox digests, schedules, comparisons, stats. ' +
+      'Self-contained HTML+CSS (no external resources, no scripts needed). Use the provided ' +
+      'CSS variables (--bg --surface --text --subtle --accent --hairline) so it matches the ' +
+      'app theme in light and dark. Prefer this over plain text for any data-rich answer.',
+    parameters: obj(
+      {
+        title: { type: 'string', description: 'Short accessibility title' },
+        html: {
+          type: 'string',
+          description: 'Self-contained HTML+CSS body markup (no <html>/<head>)',
+        },
+      },
+      ['html'],
+    ) as AgTool['parameters'],
+  },
+  {
     name: 'show_plan_card',
     description:
       'Render a plan/checklist card inline in the chat UI. Use when presenting a multi-step plan.',
