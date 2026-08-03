@@ -20,7 +20,7 @@ def _iso(dt: datetime) -> str:
     return dt.isoformat()
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def list_calendar_events(days_ahead: int = 7, max_results: int = 20) -> str:
     """List upcoming Google Calendar events for the next N days.
 
@@ -58,7 +58,7 @@ def list_calendar_events(days_ahead: int = 7, max_results: int = 20) -> str:
     return json.dumps(events)
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def create_calendar_event(
     summary: str,
     start_iso: str,
@@ -89,7 +89,7 @@ def create_calendar_event(
     return json.dumps({"created": True, "id": created["id"], "htmlLink": created.get("htmlLink")})
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def delete_calendar_event(event_id: str) -> str:
     """Delete an event from the user's primary Google Calendar by id.
 
@@ -103,7 +103,7 @@ def delete_calendar_event(event_id: str) -> str:
     return json.dumps({"deleted": True})
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def find_free_time_slots(
     date: str,
     duration_minutes: int = 60,

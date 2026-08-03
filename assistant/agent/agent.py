@@ -15,8 +15,10 @@ from typing import Literal
 from copilotkit import CopilotKitMiddleware, CopilotKitState
 from deepagents import create_deep_agent
 from deepagents.backends import CompositeBackend, FilesystemBackend, StateBackend, StoreBackend
-from langgraph.checkpoint.postgres import PostgresSaver
-from langgraph.store.postgres import PostgresStore
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+from langgraph.store.postgres.aio import AsyncPostgresStore
+from psycopg.rows import dict_row
+from psycopg_pool import AsyncConnectionPool
 
 from ..config import settings
 from ..tools import BACKEND_TOOLS, ROUTINE_RUN_TOOLS, WEBHOOK_TOOLS
@@ -37,22 +39,32 @@ class AssistantState(CopilotKitState):
     artifact: dict | None
 
 
-@lru_cache(maxsize=1)
-def _checkpointer() -> PostgresSaver:
-    saver = PostgresSaver.from_conn_string(settings.database_url)
-    if hasattr(saver, "__enter__"):
-        saver = saver.__enter__()
-    saver.setup()
-    return saver
+def _lg_pool() -> AsyncConnectionPool:
+    """Unopened async pool for LangGraph persistence — opened via setup_persistence()."""
+    return AsyncConnectionPool(
+        settings.database_url,
+        min_size=1,
+        max_size=6,
+        open=False,
+        kwargs={"autocommit": True, "prepare_threshold": 0, "row_factory": dict_row},
+    )
 
 
 @lru_cache(maxsize=1)
-def _store() -> PostgresStore:
-    store = PostgresStore.from_conn_string(settings.database_url)
-    if hasattr(store, "__enter__"):
-        store = store.__enter__()
-    store.setup()
-    return store
+def _checkpointer() -> AsyncPostgresSaver:
+    return AsyncPostgresSaver(_lg_pool())
+
+
+@lru_cache(maxsize=1)
+def _store() -> AsyncPostgresStore:
+    return AsyncPostgresStore(_lg_pool())
+
+
+async def setup_persistence() -> None:
+    """Open pools and create LangGraph tables. Call once at server startup."""
+    for component in (_checkpointer(), _store()):
+        await component.conn.open()  # no-op if already open
+        await component.setup()
 
 
 def _workspace_backend():
@@ -72,11 +84,11 @@ def _workspace_backend():
     return FilesystemBackend(root_dir=str(settings.workspace_dir), virtual_mode=True)
 
 
-def _backend(runtime):
+def _backend():
     return CompositeBackend(
-        default=StateBackend(runtime),
+        default=StateBackend(),
         routes={
-            "/skills/": StoreBackend(runtime, namespace=lambda rt: (settings.user_id, "skills")),
+            "/skills/": StoreBackend(namespace=lambda rt: (settings.user_id, "skills")),
             "/workspace/": _workspace_backend(),
         },
     )
@@ -113,7 +125,7 @@ def build_assistant_graph(mode: Mode = "chat"):
         middleware=middleware,
         subagents=build_subagents(),
         skills=[str(_SKILLS_DIR), "/skills/"],  # bundled (read-only) + agent-authored (writable)
-        backend=_backend,
+        backend=_backend(),
         state_schema=AssistantState,
         checkpointer=_checkpointer(),
         store=_store(),

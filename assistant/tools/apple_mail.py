@@ -40,7 +40,7 @@ def _decode(value: str | None) -> str:
     )
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def list_apple_mail_messages(max_results: int = 10, unread_only: bool = False) -> str:
     """List recent messages from the user's iCloud (Apple Mail) inbox.
 
@@ -81,7 +81,7 @@ def list_apple_mail_messages(max_results: int = 10, unread_only: bool = False) -
     return json.dumps(messages)
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def send_apple_mail(to: str, subject: str, body: str) -> str:
     """Send an email from the user's iCloud (Apple Mail) address.
 

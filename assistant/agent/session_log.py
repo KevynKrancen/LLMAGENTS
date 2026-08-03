@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 
-from deepagents.middleware import AgentMiddleware
+from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import BaseMessage
 
 from .. import db
@@ -32,15 +32,15 @@ class SessionLogMiddleware(AgentMiddleware):
         self._source = source
         self._turns_since_review: dict[str, int] = defaultdict(int)
 
-    async def after_agent(self, state, runtime) -> None:  # noqa: D401
+    async def aafter_agent(self, state, runtime) -> None:
         try:
             self._log(state, runtime)
         except Exception as exc:  # logging must never break a run
             logger.warning("session log failed: %s", exc)
 
     def _log(self, state, runtime) -> None:
-        config = getattr(runtime, "config", None) or {}
-        thread_id = str(config.get("configurable", {}).get("thread_id", "default"))
+        info = getattr(runtime, "execution_info", None)
+        thread_id = str(getattr(info, "thread_id", None) or "default")
         messages: list[BaseMessage] = list(state.get("messages", []))
         if not messages:
             return

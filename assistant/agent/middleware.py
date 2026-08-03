@@ -1,4 +1,4 @@
-"""Custom middleware for the Hermes agent.
+"""Custom middleware for the Hermes agent (langchain 1.3 middleware API).
 
 Cache discipline (ported from Hermes Agent): anything dynamic — semantic
 memory recall, per-turn context — is injected into the *user message*, never
@@ -11,9 +11,9 @@ import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
-from deepagents.middleware import AgentMiddleware
+from langchain.agents.middleware import AgentMiddleware
 from langchain.chat_models import init_chat_model
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from ..config import settings
 from ..memory import memory_snapshot, semantic_memory
@@ -33,11 +33,24 @@ def _text_of(content) -> str:
     return str(content or "").strip()
 
 
+def _thread_id(request) -> str:
+    info = getattr(getattr(request, "runtime", None), "execution_info", None)
+    return str(getattr(info, "thread_id", None) or "default")
+
+
+def _final_ai_message(response) -> AIMessage | None:
+    result = getattr(response, "result", response)
+    messages = result if isinstance(result, list) else [result]
+    for message in reversed(messages):
+        if isinstance(message, AIMessage):
+            return message
+    return None
+
+
 def _runtime_context(request) -> dict:
-    """Best-effort merged view of runtime context + AG-UI forwarded context."""
+    """Merged view of runtime context + AG-UI forwarded context items."""
     merged: dict = {}
-    runtime = getattr(request, "runtime", None)
-    context = getattr(runtime, "context", None)
+    context = getattr(getattr(request, "runtime", None), "context", None)
     if isinstance(context, dict):
         merged.update(context)
     state = getattr(request, "state", None)
@@ -63,7 +76,7 @@ class ModelSelectMiddleware(AgentMiddleware):
         self._cache: dict[str, object] = {}
         self._lock = threading.Lock()
 
-    async def wrap_model_call(self, request, handler):
+    async def awrap_model_call(self, request, handler):
         wanted = _runtime_context(request).get("model")
         if isinstance(wanted, str) and wanted and wanted != settings.assistant_model:
             try:
@@ -89,8 +102,19 @@ class MemorySnapshotMiddleware(AgentMiddleware):
         self._frozen: dict[str, str] = {}
         self._lock = threading.Lock()
 
-    async def wrap_model_call(self, request, handler):
-        thread_id = self._thread_id(request)
+    async def awrap_model_call(self, request, handler):
+        snapshot = self._snapshot_for(_thread_id(request))
+        if snapshot:
+            messages = list(request.messages)
+            if not any(
+                isinstance(m, SystemMessage) and str(m.content).startswith(SNAPSHOT_HEADER)
+                for m in messages
+            ):
+                messages.insert(0, SystemMessage(content=snapshot))
+                request = request.override(messages=messages)
+        return await handler(request)
+
+    def _snapshot_for(self, thread_id: str) -> str:
         with self._lock:
             snapshot = self._frozen.get(thread_id)
             if snapshot is None:
@@ -100,24 +124,9 @@ class MemorySnapshotMiddleware(AgentMiddleware):
                     logger.warning("memory snapshot failed: %s", exc)
                     snapshot = ""
                 self._frozen[thread_id] = snapshot
-                if len(self._frozen) > 500:  # bound in-process cache
+                if len(self._frozen) > 500:  # bound the in-process cache
                     self._frozen.pop(next(iter(self._frozen)))
-        if snapshot:
-            messages = list(request.messages)
-            if not any(
-                isinstance(m, SystemMessage) and str(m.content).startswith(SNAPSHOT_HEADER)
-                for m in messages
-            ):
-                insert_at = 1 if messages and isinstance(messages[0], SystemMessage) else 0
-                messages.insert(insert_at, SystemMessage(content=snapshot))
-                request.messages = messages
-        return await handler(request)
-
-    @staticmethod
-    def _thread_id(request) -> str:
-        runtime = getattr(request, "runtime", None)
-        config = getattr(runtime, "config", None) or {}
-        return str(config.get("configurable", {}).get("thread_id", "default"))
+            return snapshot
 
 
 class Mem0Middleware(AgentMiddleware):
@@ -130,27 +139,28 @@ class Mem0Middleware(AgentMiddleware):
         self._top_k = top_k
         self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="mem0")
 
-    async def wrap_model_call(self, request, handler):
+    async def awrap_model_call(self, request, handler):
         user_message = self._latest_user_message(request.messages)
         user_text = _text_of(user_message.content) if user_message else None
 
         if user_message and user_text and MEMORY_FENCE_OPEN not in user_text:
-            context = self._recall_block(user_text)
-            if context:
-                index = request.messages.index(user_message)
+            recall = self._recall_block(user_text)
+            if recall:
                 messages = list(request.messages)
+                index = messages.index(user_message)
                 messages[index] = HumanMessage(
-                    content=f"{user_text}\n\n{context}", id=user_message.id
+                    content=f"{user_text}\n\n{recall}", id=user_message.id
                 )
-                request.messages = messages
+                request = request.override(messages=messages)
 
         response = await handler(request)
 
-        if user_text and not getattr(response, "tool_calls", None):
-            answer = _text_of(getattr(response, "content", ""))
-            if answer:
+        answer = _final_ai_message(response)
+        if user_text and answer is not None and not answer.tool_calls:
+            answer_text = _text_of(answer.content)
+            if answer_text:
                 clean = user_text.split(MEMORY_FENCE_OPEN)[0].strip()
-                self._executor.submit(self._persist, clean, answer)
+                self._executor.submit(self._persist, clean, answer_text)
         return response
 
     def _recall_block(self, user_text: str) -> str | None:

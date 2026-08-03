@@ -12,9 +12,9 @@ langchain-google-genai>=3.0
 langchain-ollama>=1.0
 
 # AG-UI protocol bridge
-ag-ui-protocol>=0.2
-ag-ui-langgraph>=0.1
-copilotkit>=0.2
+ag-ui-protocol>=0.1.19
+ag-ui-langgraph>=0.0.7
+copilotkit>=0.1.49
 
 # Memory
 mem0ai>=2.0.14

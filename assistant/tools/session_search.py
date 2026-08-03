@@ -23,7 +23,7 @@ def _bookends(thread_id: str) -> dict:
     return {"start": trim[:3], "end": trim[-3:] if len(trim) > 3 else []}
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def session_search(query: str = "", thread_id: str = "", limit: int = 5) -> str:
     """Search or browse past conversations. No arguments = browse recent.
 

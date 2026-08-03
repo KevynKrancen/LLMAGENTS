@@ -29,7 +29,7 @@ def _extract_body(payload: dict) -> str:
     return ""
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def list_gmail_messages(query: str = "in:inbox", max_results: int = 10) -> str:
     """List recent Gmail messages matching a Gmail search query.
 
@@ -70,7 +70,7 @@ def list_gmail_messages(query: str = "in:inbox", max_results: int = 10) -> str:
     return json.dumps(messages)
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def read_gmail_message(message_id: str) -> str:
     """Read the full body of a single Gmail message by its id.
 
@@ -103,7 +103,7 @@ def _send(raw_message: MIMEText, thread_id: str | None = None) -> str:
     return json.dumps({"sent": True, "id": sent["id"]})
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def send_gmail(to: str, subject: str, body: str) -> str:
     """Send a new email from the user's Gmail account.
 
@@ -124,7 +124,7 @@ def send_gmail(to: str, subject: str, body: str) -> str:
     return _send(message)
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def draft_gmail_reply(message_id: str, body: str) -> str:
     """Reply to an existing Gmail message, keeping it in the same thread.
 

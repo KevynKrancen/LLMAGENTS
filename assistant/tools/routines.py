@@ -9,7 +9,7 @@ from langchain_core.tools import tool
 from ..routines import routine_manager
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def create_routine(name: str, cron: str, prompt: str) -> str:
     """Create a recurring routine that runs the assistant proactively.
 
@@ -35,7 +35,7 @@ def create_routine(name: str, cron: str, prompt: str) -> str:
     )
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def list_routines() -> str:
     """List all routines with their schedules, status, and last run result.
 
@@ -45,7 +45,7 @@ def list_routines() -> str:
     return routine_manager.to_json()
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def pause_or_resume_routine(routine_id: str, enabled: bool) -> str:
     """Pause (enabled=false) or resume (enabled=true) a routine by id.
 
@@ -61,7 +61,7 @@ def pause_or_resume_routine(routine_id: str, enabled: bool) -> str:
     return json.dumps({"id": routine_id, "enabled": enabled})
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def delete_routine(routine_id: str) -> str:
     """Permanently delete a routine by id. Ask the user before deleting.
 

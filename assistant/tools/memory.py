@@ -43,7 +43,7 @@ def manage_memory_file(file: str, action: str, text: str = "", old_text: str = "
     return memory_file.render()
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def remember_fact(fact: str, category: str = "general") -> str:
     """Store a long-tail fact in semantic memory (mem0, vector-searchable).
 
@@ -63,7 +63,7 @@ def remember_fact(fact: str, category: str = "general") -> str:
     return json.dumps({"remembered": fact, "category": category})
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def recall_memories(query: str, limit: int = 5) -> str:
     """Semantic search over long-tail memories (mem0).
 
@@ -90,7 +90,7 @@ def recall_memories(query: str, limit: int = 5) -> str:
     )
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def forget_memory(memory_id: str) -> str:
     """Delete one semantic memory by id, when the user asks to forget something.
 

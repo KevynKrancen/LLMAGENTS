@@ -69,6 +69,20 @@ async def _run_routine(routine: Routine) -> str:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     db.init_schema()
+    from ..agent.agent import setup_persistence
+
+    await setup_persistence()
+    # Async persistence must be created inside the event loop, so the graph
+    # and its AG-UI endpoint are mounted here rather than at import time.
+    add_langgraph_fastapi_endpoint(
+        app=app,
+        agent=LangGraphAGUIAgent(
+            name="hermes",
+            description="Kevyn's personal deep-agent assistant.",
+            graph=build_assistant_graph("chat"),
+        ),
+        path="/agent",
+    )
     routine_manager.start(_run_routine)
     logger.info("Hermes server ready on :%d", settings.port)
     yield
@@ -87,19 +101,6 @@ async def bearer_auth(request: Request, call_next):
         if not secrets.compare_digest(supplied, settings.api_auth_token):
             return JSONResponse({"detail": "unauthorized"}, status_code=401)
     return await call_next(request)
-
-
-# --- AG-UI endpoint (the iPhone app's chat channel) -------------------------
-
-add_langgraph_fastapi_endpoint(
-    app=app,
-    agent=LangGraphAGUIAgent(
-        name="hermes",
-        description="Kevyn's personal deep-agent assistant.",
-        graph=build_assistant_graph("chat"),
-    ),
-    path="/agent",
-)
 
 
 # --- Health -----------------------------------------------------------------

@@ -17,7 +17,7 @@ from ..config import settings
 _SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def search_youtube_videos(query: str, max_results: int = 5) -> str:
     """Search YouTube and return matching videos with their video ids.
 

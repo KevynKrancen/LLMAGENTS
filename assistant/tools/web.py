@@ -12,7 +12,7 @@ from ..config import settings
 _TAVILY_URL = "https://api.tavily.com/search"
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def search_web(query: str, max_results: int = 5, topic: str = "general") -> str:
     """Search the live web and return ranked results with content snippets.
 
@@ -59,7 +59,7 @@ def search_web(query: str, max_results: int = 5, topic: str = "general") -> str:
     )
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def fetch_web_page(url: str, max_chars: int = 6000) -> str:
     """Download a single web page and return its readable text content.
 

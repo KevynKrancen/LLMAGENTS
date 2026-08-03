@@ -34,7 +34,7 @@ def _post(payload: dict) -> str:
     return json.dumps({"sent": True, "response": response.json()})
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def send_whatsapp_message(to_phone: str, text: str) -> str:
     """Send a free-form WhatsApp text message to a phone number.
 
@@ -52,7 +52,7 @@ def send_whatsapp_message(to_phone: str, text: str) -> str:
     return _post({"to": to_phone, "type": "text", "text": {"body": text}})
 
 
-@tool(parse_docstring=True, handle_tool_error=True)
+@tool(parse_docstring=True)
 def send_whatsapp_template(to_phone: str, template_name: str, language_code: str = "en_US") -> str:
     """Send an approved WhatsApp template message (works outside the 24h window).
 
