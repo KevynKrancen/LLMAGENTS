@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Hermes assistant — secrets & local data (never commit)
+assistant/.env
+assistant/credentials.json
+assistant/apns_key.p8
+assistant/data/
+
+# Node
+node_modules/
+
+# macOS
+.DS_Store

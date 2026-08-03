@@ -1,0 +1,46 @@
+# Hermes assistant backend — Python 3.12+
+# Install: pip install -r assistant/requirements.txt  (or: uv pip install -r ...)
+
+# Agent runtime
+deepagents>=0.7.1
+langchain>=1.2.13
+langchain-core>=1.2.19
+langgraph>=1.1
+langchain-anthropic>=1.2
+langchain-openai>=1.2
+langchain-google-genai>=3.0
+langchain-ollama>=1.0
+
+# AG-UI protocol bridge
+ag-ui-protocol>=0.2
+ag-ui-langgraph>=0.1
+copilotkit>=0.2
+
+# Memory
+mem0ai>=2.0.14
+
+# Persistence (Postgres + pgvector)
+langgraph-checkpoint-postgres>=3.0
+psycopg[binary,pool]>=3.2
+pgvector>=0.3
+
+# Server
+fastapi>=0.116
+uvicorn[standard]>=0.30
+pydantic-settings>=2.4
+httpx[http2]>=0.27
+sse-starlette>=2.1
+
+# Scheduling & push
+apscheduler>=3.11
+PyJWT[crypto]>=2.9
+
+# Integrations
+google-api-python-client>=2.140
+google-auth-oauthlib>=1.2
+beautifulsoup4>=4.12
+
+# Optional sandboxes (uncomment the one you use; see config SANDBOX_PROVIDER)
+# langchain-daytona
+# langchain-e2b
+# langchain-modal
