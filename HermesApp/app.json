@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "Hermes",
+    "slug": "hermes",
+    "version": "1.0.0",
+    "scheme": "hermes",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.kevyn.hermes",
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": [
+          "shortcuts",
+          "youtube",
+          "spotify",
+          "whatsapp",
+          "comgooglemaps"
+        ],
+        "NSCalendarsUsageDescription": "Hermes creates calendar events you ask for.",
+        "NSRemindersUsageDescription": "Hermes creates reminders you ask for.",
+        "UIBackgroundModes": ["remote-notification"]
+      }
+    },
+    "android": {
+      "package": "com.kevyn.hermes",
+      "adaptiveIcon": {
+        "backgroundColor": "#0C0C0E",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "enableBackgroundRemoteNotifications": true
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Hermes creates calendar events you ask for.",
+          "remindersPermission": "Hermes creates reminders you ask for."
+        }
+      ]
+    ]
+  }
+}
