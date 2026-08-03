@@ -10,6 +10,7 @@ import { Sheet } from './Sheet';
 const ITEMS = [
   { label: 'Artifacts', route: '/artifacts', icon: '📄' },
   { label: 'Routines', route: '/routines', icon: '↻' },
+  { label: 'Connectors', route: '/connectors', icon: '🧩' },
   { label: 'Settings', route: '/settings', icon: '⚙' },
 ];
 

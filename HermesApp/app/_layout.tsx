@@ -32,6 +32,8 @@ export default function RootLayout() {
         <Stack.Screen name="artifacts" options={{ presentation: 'modal' }} />
         <Stack.Screen name="artifact/[id]" />
         <Stack.Screen name="routines" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="connectors" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="space/[id]" />
         <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
       </Stack>
     </>

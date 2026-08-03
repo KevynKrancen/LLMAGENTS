@@ -25,8 +25,10 @@ from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
 
 from .. import db
-from ..agent import build_assistant_graph
+from ..agent.agent import get_assistant_graph
 from ..config import settings
+from ..integrations import integration_registry
+from ..integrations.catalog import CATALOG
 from ..routines import Routine, routine_manager
 from . import device_queue, push
 from .oauth import router as oauth_router
@@ -62,7 +64,7 @@ async def _run_headless(graph, prompt: str, source: str) -> str:
 
 
 async def _run_routine(routine: Routine) -> str:
-    graph = build_assistant_graph("routine")
+    graph = await get_assistant_graph("routine")
     return await _run_headless(graph, routine.prompt, "routine")
 
 
@@ -74,15 +76,13 @@ async def lifespan(app: FastAPI):
     await setup_persistence()
     # Async persistence must be created inside the event loop, so the graph
     # and its AG-UI endpoint are mounted here rather than at import time.
-    add_langgraph_fastapi_endpoint(
-        app=app,
-        agent=LangGraphAGUIAgent(
-            name="hermes",
-            description="Kevyn's personal deep-agent assistant.",
-            graph=build_assistant_graph("chat"),
-        ),
-        path="/agent",
+    global _agui_agent
+    _agui_agent = LangGraphAGUIAgent(
+        name="hermes",
+        description="Kevyn's personal deep-agent assistant.",
+        graph=await get_assistant_graph("chat"),
     )
+    add_langgraph_fastapi_endpoint(app=app, agent=_agui_agent, path="/agent")
     routine_manager.start(_run_routine)
     logger.info("Hermes server ready on :%d", settings.port)
     yield
@@ -92,6 +92,20 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Hermes Assistant", lifespan=lifespan)
 app.include_router(oauth_router)
+
+_agui_agent: LangGraphAGUIAgent | None = None
+_agui_graph_version = -1
+
+
+@app.middleware("http")
+async def refresh_connector_tools(request: Request, call_next):
+    """Hot-swap the chat graph when connectors changed since the last run."""
+    global _agui_graph_version
+    if request.url.path == "/agent" and _agui_agent is not None:
+        if _agui_graph_version != integration_registry.version:
+            _agui_agent.graph = await get_assistant_graph("chat")
+            _agui_graph_version = integration_registry.version
+    return await call_next(request)
 
 
 @app.middleware("http")
@@ -142,11 +156,27 @@ async def thread_messages(thread_id: str) -> list[dict]:
 # --- Artifacts --------------------------------------------------------------
 
 @app.get("/artifacts")
-async def list_artifacts(limit: int = 50) -> list[dict]:
+async def list_artifacts(limit: int = 50, space: str = "") -> list[dict]:
+    if space:
+        return db.query(
+            "SELECT id, kind, title, content, version, space, updated_at::text AS updated_at "
+            "FROM hermes.artifacts WHERE space=%s ORDER BY updated_at DESC LIMIT %s",
+            (space, min(limit, 100)),
+        )
     return db.query(
-        "SELECT id, kind, title, content, version, updated_at::text AS updated_at "
+        "SELECT id, kind, title, content, version, space, updated_at::text AS updated_at "
         "FROM hermes.artifacts ORDER BY updated_at DESC LIMIT %s",
         (min(limit, 100),),
+    )
+
+
+@app.get("/spaces")
+async def list_spaces_route() -> list[dict]:
+    return db.query(
+        """SELECT s.id, s.name, s.icon, count(a.id) AS items
+           FROM hermes.spaces s
+           LEFT JOIN hermes.artifacts a ON a.space = s.id
+           GROUP BY s.id, s.name, s.icon ORDER BY s.created_at"""
     )
 
 
@@ -244,6 +274,50 @@ async def shortcuts_manifest() -> dict:
     }
 
 
+# --- Connectors (the app platform) ------------------------------------------
+
+class ConnectorIn(BaseModel):
+    kind: str  # mcp | openapi | builtin
+    name: str
+    config: dict = {}
+
+
+class ConnectorPatch(BaseModel):
+    enabled: bool
+
+
+@app.get("/apps")
+async def list_apps() -> dict:
+    return {"installed": await integration_registry.summary(), "catalog": CATALOG}
+
+
+@app.post("/apps")
+async def add_app(body: ConnectorIn) -> dict:
+    # Catalog entries that are actually hosted MCP servers translate here.
+    if body.kind == "builtin":
+        entry = next((e for e in CATALOG if e["app"] == body.config.get("app", body.name)), None)
+        if entry and entry.get("mcp_url"):
+            return {"id": integration_registry.add("mcp", body.name, {"url": entry["mcp_url"]})}
+    try:
+        return {"id": integration_registry.add(body.kind, body.name, body.config)}
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+@app.patch("/apps/{integration_id}")
+async def toggle_app(integration_id: str, body: ConnectorPatch) -> dict:
+    if not integration_registry.set_enabled(integration_id, body.enabled):
+        raise HTTPException(404, "connector not found")
+    return {"ok": True}
+
+
+@app.delete("/apps/{integration_id}")
+async def delete_app(integration_id: str) -> dict:
+    if not integration_registry.remove(integration_id):
+        raise HTTPException(404, "connector not found")
+    return {"ok": True}
+
+
 # --- WhatsApp webhook (untrusted inbound → scoped toolset) ------------------
 
 @app.get("/webhooks/whatsapp")
@@ -268,7 +342,7 @@ async def whatsapp_inbound(request: Request) -> dict:
                 if not text or sender != settings.whatsapp_owner_phone:
                     continue  # only the owner may talk to the agent
                 answer = await _run_headless(
-                    build_assistant_graph("webhook"), text, "webhook"
+                    await get_assistant_graph("webhook"), text, "webhook"
                 )
                 # Outbound send happens OUTSIDE the agent loop (trust tier).
                 await _send_whatsapp_reply(sender, answer)

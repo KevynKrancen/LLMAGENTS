@@ -1,28 +1,23 @@
-/** The hidden depth behind the composer's "+" — quiet capability grid. */
-import React from 'react';
+/**
+ * The ＋ sheet — Spaces, not buttons.
+ *
+ * Agent actions (music, shortcuts, email…) happen invisibly through
+ * conversation; this sheet only surfaces the user's living spaces:
+ * Routines, Notes, Connectors, and anything they created by simply asking
+ * Hermes ("make me a Recipes space"). Fully dynamic.
+ */
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { radius, space, type as typ } from '../theme/tokens';
+import { api, type SpaceRecord } from '../api/rest';
+import { radius, space as sp, type as typ } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import { Sheet } from './Sheet';
 
-interface Capability {
-  icon: string;
-  label: string;
-  prompt?: string;
-  route?: string;
-}
-
-const CAPABILITIES: Capability[] = [
-  { icon: '▶', label: 'Play on YouTube', prompt: 'Play ' },
-  { icon: '☰', label: 'Plan my day', prompt: 'Plan my day around my calendar.' },
-  { icon: '✉', label: 'Check email', prompt: 'Anything important in my inbox?' },
-  { icon: '◔', label: 'Morning brief', prompt: 'Give me my morning brief.' },
-  { icon: '⚡', label: 'Run a shortcut', prompt: 'Run the shortcut ' },
-  { icon: '☑', label: 'Remind me', prompt: 'Remind me to ' },
-  { icon: '📄', label: 'Artifacts', route: '/artifacts' },
-  { icon: '↻', label: 'Routines', route: '/routines' },
+const FIXED: { id: string; name: string; icon: string; route: string }[] = [
+  { id: '_routines', name: 'Routines', icon: '↻', route: '/routines' },
+  { id: '_connectors', name: 'Connectors', icon: '🧩', route: '/connectors' },
 ];
 
 interface CapabilitySheetProps {
@@ -34,45 +29,70 @@ interface CapabilitySheetProps {
 export function CapabilitySheet({ visible, onClose, onPrompt }: CapabilitySheetProps) {
   const { colors } = useTheme();
   const router = useRouter();
+  const [spaces, setSpaces] = useState<SpaceRecord[]>([]);
 
-  const pick = (capability: Capability) => {
+  useEffect(() => {
+    if (visible) {
+      api.spaces().then(setSpaces).catch(() => setSpaces([]));
+    }
+  }, [visible]);
+
+  const open = (route: string) => {
     onClose();
-    if (capability.route) {
-      router.push(capability.route as never);
-      return;
-    }
-    if (capability.prompt) {
-      // Prompts ending in a space are prefills; complete sentences send.
-      onPrompt(capability.prompt, !capability.prompt.endsWith(' '));
-    }
+    router.push(route as never);
   };
 
   return (
     <Sheet visible={visible} onClose={onClose}>
       <View style={styles.grid}>
-        {CAPABILITIES.map((capability) => (
+        {FIXED.map((entry) => (
           <Pressable
-            key={capability.label}
-            onPress={() => pick(capability)}
+            key={entry.id}
+            onPress={() => open(entry.route)}
             style={[styles.cell, { backgroundColor: colors.surfaceAlt }]}
           >
-            <Text style={{ fontSize: 20, color: colors.accent }}>{capability.icon}</Text>
-            <Text style={[styles.cellLabel, { color: colors.text }]}>{capability.label}</Text>
+            <Text style={{ fontSize: 20, color: colors.accent }}>{entry.icon}</Text>
+            <Text style={[styles.cellLabel, { color: colors.text }]}>{entry.name}</Text>
+          </Pressable>
+        ))}
+        {spaces.map((entry) => (
+          <Pressable
+            key={entry.id}
+            onPress={() => open(`/space/${entry.id}`)}
+            style={[styles.cell, { backgroundColor: colors.surfaceAlt }]}
+          >
+            <Text style={{ fontSize: 20, color: colors.accent }}>{entry.icon}</Text>
+            <Text style={[styles.cellLabel, { color: colors.text }]}>{entry.name}</Text>
+            {entry.items > 0 && (
+              <Text style={{ color: colors.subtle, fontSize: 9 }}>{entry.items}</Text>
+            )}
           </Pressable>
         ))}
       </View>
+      <Pressable
+        onPress={() => {
+          onClose();
+          onPrompt('Create a new space for ', false);
+        }}
+        style={styles.hint}
+      >
+        <Text style={{ color: colors.subtle, fontSize: typ.small, textAlign: 'center' }}>
+          Want another space? Just ask Hermes.
+        </Text>
+      </Pressable>
     </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space(3) },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: sp(3) },
   cell: {
     width: '30.5%',
     borderRadius: radius.md,
-    paddingVertical: space(4),
+    paddingVertical: sp(4),
     alignItems: 'center',
-    gap: space(2),
+    gap: sp(1.5),
   },
   cellLabel: { fontSize: typ.micro, textAlign: 'center' },
+  hint: { marginTop: sp(4) },
 });

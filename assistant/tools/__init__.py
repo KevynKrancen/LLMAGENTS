@@ -21,6 +21,7 @@ from .routines import (
     pause_or_resume_routine,
 )
 from .session_search import session_search
+from .spaces import create_space, list_spaces, save_note
 from .web import fetch_web_page, search_web
 from .whatsapp import send_whatsapp_message, send_whatsapp_template
 from .youtube import search_youtube_videos
@@ -53,9 +54,12 @@ CORE_TOOLS = [
     # memory + recall
     *MEMORY_TOOLS,
     session_search,
-    # artifacts
+    # artifacts + spaces
     create_artifact,
     update_artifact,
+    create_space,
+    list_spaces,
+    save_note,
 ]
 
 # Full set for interactive chat (routine management included).

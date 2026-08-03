@@ -16,6 +16,9 @@ ag-ui-protocol>=0.1.19
 ag-ui-langgraph>=0.0.7
 copilotkit>=0.1.49
 
+# Connectors (MCP)
+langchain-mcp-adapters>=0.1.11
+
 # Memory
 mem0ai>=2.0.14
 

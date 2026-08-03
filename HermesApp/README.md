@@ -22,6 +22,10 @@ AG-UI protocol (hand-rolled typed SSE client on `expo/fetch`).
   update in place as the agent streams STATE_DELTA patches; markdown,
   tables, and charts render natively.
 - **Routines** — create/pause/delete scheduled runs with cron presets.
+- **Connectors** — the app platform: one-tap catalog apps (Weather,
+  Telegram, GitHub, Spotify, Notion), or add your own — any MCP server URL
+  or any REST API via its OpenAPI spec — and the tools attach to Hermes
+  automatically, live on the next message.
 - **Settings** — server URL + token, Google OAuth sign-in (opens the
   backend's `/auth/google/start`), integration status dots, push
   registration, shortcut-pack installer.

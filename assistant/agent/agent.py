@@ -105,12 +105,20 @@ _OUTBOUND_APPROVAL = {
     "send_apple_mail": {"allowed_decisions": ["approve", "edit", "reject"]},
     "send_whatsapp_message": {"allowed_decisions": ["approve", "edit", "reject"]},
     "delete_calendar_event": {"allowed_decisions": ["approve", "reject"]},
+    # Connector installs attach arbitrary new tools — always ask first.
+    "install_mcp_connector": {"allowed_decisions": ["approve", "reject"]},
+    "install_api_connector": {"allowed_decisions": ["approve", "reject"]},
 }
 
+# Graphs cached per (mode, integrations version) so connector changes apply
+# on the very next message without a restart.
+_graph_cache: dict[tuple[str, int], object] = {}
 
-@lru_cache(maxsize=3)
-def build_assistant_graph(mode: Mode = "chat"):
-    """Build (once per mode) and return the compiled assistant graph."""
+
+def build_assistant_graph(mode: Mode = "chat", extra_tools: list | None = None):
+    """Build and return the compiled assistant graph (sync, static tools only)."""
+    from ..tools.apps import APP_TOOLS
+
     middleware = [
         CopilotKitMiddleware(),
         ModelSelectMiddleware(),
@@ -118,9 +126,12 @@ def build_assistant_graph(mode: Mode = "chat"):
         Mem0Middleware(),
         SessionLogMiddleware(source=mode),
     ]
+    tools = [*_TOOLSETS[mode](), *(extra_tools or [])]
+    if mode == "chat":
+        tools.extend(APP_TOOLS)
     return create_deep_agent(
         model=settings.assistant_model,
-        tools=_TOOLSETS[mode](),
+        tools=tools,
         system_prompt=SYSTEM_PROMPT,
         middleware=middleware,
         subagents=build_subagents(),
@@ -132,3 +143,17 @@ def build_assistant_graph(mode: Mode = "chat"):
         interrupt_on=_OUTBOUND_APPROVAL if mode == "chat" else None,
         name=f"hermes-{mode}",
     )
+
+
+async def get_assistant_graph(mode: Mode = "chat"):
+    """Graph with connector tools attached, rebuilt when connectors change."""
+    from ..integrations import integration_registry
+
+    key = (mode, integration_registry.version)
+    graph = _graph_cache.get(key)
+    if graph is None:
+        connector_tools = await integration_registry.load_tools() if mode != "webhook" else []
+        graph = build_assistant_graph(mode, extra_tools=connector_tools)
+        _graph_cache.clear()  # keep only the current version's graphs
+        _graph_cache[key] = graph
+    return graph

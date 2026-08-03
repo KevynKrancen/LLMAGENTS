@@ -69,6 +69,23 @@ an https tunnel). Set the server URL + `API_AUTH_TOKEN` in the app Settings.
 | Code sandbox | `SANDBOX_PROVIDER=daytona|e2b|modal` + key (+ its pip package) |
 | iPhone Shortcuts | Build the pack: [`../shortcuts/README.md`](../shortcuts/README.md) |
 
+## Connectors — the app platform
+
+Install apps from the phone (menu → Connectors) and their tools attach to
+the agent automatically, effective on the next message — no restart:
+
+- **MCP servers** — paste any MCP URL (e.g. `https://mcp.notion.com/mcp`);
+  tools are discovered live via `langchain-mcp-adapters`.
+- **Any REST API** — paste an OpenAPI spec URL (+ optional auth header);
+  every documented endpoint becomes a typed tool.
+- **Catalog** — one-tap apps: Weather (keyless), Telegram, GitHub, Spotify,
+  Notion.
+- **In chat** — the agent can install connectors itself
+  (`install_mcp_connector` / `install_api_connector`), always gated behind
+  an approval sheet.
+
+Endpoints: `GET/POST /apps`, `PATCH/DELETE /apps/{id}`.
+
 ## Security model
 
 - Single-user; every request needs the bearer `API_AUTH_TOKEN`.

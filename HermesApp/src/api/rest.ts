@@ -29,7 +29,15 @@ export interface ArtifactRecord {
   title: string;
   content: string;
   version: number;
+  space?: string;
   updated_at: string;
+}
+
+export interface SpaceRecord {
+  id: string;
+  name: string;
+  icon: string;
+  items: number;
 }
 
 export interface DeviceCommand {
@@ -64,13 +72,32 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
+export interface ConnectorInstalled {
+  id: string;
+  kind: 'mcp' | 'openapi' | 'builtin';
+  name: string;
+  enabled: boolean;
+  config: Record<string, unknown>;
+  tools: string[];
+}
+
+export interface CatalogEntry {
+  app: string;
+  title: string;
+  description: string;
+  mcp_url?: string;
+  fields: { key: string; label: string; secret?: boolean }[];
+}
+
 export const api = {
   health: () => request<{ ok: boolean; model: string }>('/health'),
   threads: (query = '') =>
     request<ThreadSummary[]>(`/threads${query ? `?query=${encodeURIComponent(query)}` : ''}`),
   threadMessages: (threadId: string) =>
     request<LoggedMessage[]>(`/threads/${encodeURIComponent(threadId)}/messages`),
-  artifacts: () => request<ArtifactRecord[]>('/artifacts'),
+  artifacts: (space = '') =>
+    request<ArtifactRecord[]>(`/artifacts${space ? `?space=${encodeURIComponent(space)}` : ''}`),
+  spaces: () => request<SpaceRecord[]>('/spaces'),
   routines: () => request<RoutineRecord[]>('/routines'),
   createRoutine: (body: { name: string; cron: string; prompt: string }) =>
     request<{ id: string }>('/routines', { method: 'POST', body: JSON.stringify(body) }),
@@ -89,6 +116,12 @@ export const api = {
       body: JSON.stringify({ command_id: commandId, status, output }),
     }),
   integrations: () => request<Record<string, IntegrationStatus>>('/integrations/status'),
+  apps: () => request<{ installed: ConnectorInstalled[]; catalog: CatalogEntry[] }>('/apps'),
+  addApp: (body: { kind: string; name: string; config: Record<string, unknown> }) =>
+    request<{ id: string }>('/apps', { method: 'POST', body: JSON.stringify(body) }),
+  toggleApp: (id: string, enabled: boolean) =>
+    request<{ ok: boolean }>(`/apps/${id}`, { method: 'PATCH', body: JSON.stringify({ enabled }) }),
+  deleteApp: (id: string) => request<{ ok: boolean }>(`/apps/${id}`, { method: 'DELETE' }),
   shortcutsManifest: () =>
     request<{ pack_version: number; shortcuts: { name: string; purpose: string; icloud_url: string }[] }>(
       '/shortcuts/manifest',

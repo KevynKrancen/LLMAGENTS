@@ -80,6 +80,27 @@ CREATE TABLE IF NOT EXISTS hermes.artifacts (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS hermes.spaces (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    icon TEXT NOT NULL DEFAULT '◇',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+INSERT INTO hermes.spaces (id, name, icon) VALUES
+    ('notes', 'Notes', '¶')
+    ON CONFLICT (id) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS hermes.integrations (
+    id TEXT PRIMARY KEY,
+    kind TEXT NOT NULL,                      -- mcp | openapi | builtin
+    name TEXT NOT NULL,
+    config JSONB NOT NULL DEFAULT '{}',
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE hermes.artifacts ADD COLUMN IF NOT EXISTS space TEXT NOT NULL DEFAULT '';
+
 CREATE TABLE IF NOT EXISTS hermes.memory_files (
     name TEXT PRIMARY KEY,                   -- 'MEMORY' | 'USER'
     content TEXT NOT NULL DEFAULT '',
