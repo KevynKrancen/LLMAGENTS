@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { api, type ArtifactRecord, type WorkspaceNode } from '../../src/api/rest';
+import { ArtifactCanvas } from '../../src/components/ArtifactCanvas';
 import { radius, space as sp, type as typ } from '../../src/theme/tokens';
 import { useTheme } from '../../src/theme/useTheme';
 
@@ -30,15 +31,21 @@ export default function SpaceScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [items, setItems] = useState<ArtifactRecord[]>([]);
   const [node, setNode] = useState<WorkspaceNode | null>(null);
+  const [dashboard, setDashboard] = useState<ArtifactRecord | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(() => {
     if (!id) return;
     setRefreshing(true);
-    Promise.all([api.artifacts(id), api.workspace()])
-      .then(([artifacts, tree]) => {
-        setItems(artifacts);
-        setNode(findNode(tree, id));
+    Promise.all([api.artifacts(id), api.workspace(), api.artifacts()])
+      .then(([artifacts, tree, all]) => {
+        const found = findNode(tree, id);
+        setNode(found);
+        setDashboard(
+          found?.dashboard ? (all.find((a) => a.id === found.dashboard) ?? null) : null,
+        );
+        // The dashboard is the folder's face — don't repeat it in the list.
+        setItems(artifacts.filter((a) => a.id !== found?.dashboard));
       })
       .catch(() => undefined)
       .finally(() => setRefreshing(false));
@@ -57,6 +64,17 @@ export default function SpaceScreen() {
         </Text>
         <View style={{ width: 44 }} />
       </View>
+
+      {dashboard && (
+        <Pressable
+          style={styles.dashboard}
+          onPress={() =>
+            router.push({ pathname: '/artifact/[id]', params: { id: dashboard.id } })
+          }
+        >
+          <ArtifactCanvas artifact={dashboard} />
+        </Pressable>
+      )}
 
       {node && node.children.length > 0 && (
         <View style={styles.folderGrid}>
@@ -115,6 +133,7 @@ const styles = StyleSheet.create({
     paddingVertical: sp(2),
   },
   title: { fontSize: typ.body, fontWeight: '600' },
+  dashboard: { height: 300, marginHorizontal: sp(4), borderRadius: radius.md, overflow: 'hidden' },
   folderGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

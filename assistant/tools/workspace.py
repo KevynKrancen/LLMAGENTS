@@ -44,7 +44,7 @@ def _ensure_path(path: str, icon: str = "◇") -> str | None:
 
 def _tree(parent_id: str | None = None) -> list[dict]:
     rows = db.query(
-        """SELECT n.id, n.name, n.icon,
+        """SELECT n.id, n.name, n.icon, n.dashboard,
                   (SELECT count(*) FROM hermes.artifacts a WHERE a.space = n.id) AS items
            FROM hermes.nodes n
            WHERE n.parent_id IS NOT DISTINCT FROM %s

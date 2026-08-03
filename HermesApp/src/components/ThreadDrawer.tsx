@@ -10,7 +10,9 @@ import {
   View,
 } from 'react-native';
 
-import { api, type ThreadSummary } from '../api/rest';
+import { useRouter } from 'expo-router';
+
+import { api, type ThreadSummary, type WorkspaceNode } from '../api/rest';
 import { radius, space, type as typ } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 
@@ -23,7 +25,9 @@ interface ThreadDrawerProps {
 
 export function ThreadDrawer({ visible, onClose, onPick, onNew }: ThreadDrawerProps) {
   const { colors } = useTheme();
+  const router = useRouter();
   const [threads, setThreads] = useState<ThreadSummary[]>([]);
+  const [domains, setDomains] = useState<WorkspaceNode[]>([]);
   const [query, setQuery] = useState('');
   const [error, setError] = useState('');
 
@@ -36,6 +40,7 @@ export function ThreadDrawer({ visible, onClose, onPick, onNew }: ThreadDrawerPr
         setError('');
       })
       .catch((e) => setError(String(e.message)));
+    api.workspace().then(setDomains).catch(() => setDomains([]));
   }, [visible, query]);
 
   return (
@@ -48,6 +53,31 @@ export function ThreadDrawer({ visible, onClose, onPick, onNew }: ThreadDrawerPr
               <Text style={{ color: colors.accent, fontSize: typ.body }}>＋ New</Text>
             </Pressable>
           </View>
+          {domains.length > 0 && (
+            <View style={styles.domains}>
+              {domains.map((domain) => (
+                <Pressable
+                  key={domain.id}
+                  onPress={() => {
+                    onClose();
+                    router.push({ pathname: '/space/[id]', params: { id: domain.id } });
+                  }}
+                  style={styles.domainRow}
+                >
+                  <Text style={{ fontSize: 15 }}>{domain.icon}</Text>
+                  <Text style={{ color: colors.text, fontSize: typ.body, flex: 1 }} numberOfLines={1}>
+                    {domain.name}
+                  </Text>
+                  {domain.children.length > 0 && (
+                    <Text style={{ color: colors.subtle, fontSize: typ.micro }}>
+                      {domain.children.length} ▸
+                    </Text>
+                  )}
+                </Pressable>
+              ))}
+              <View style={[styles.divider, { backgroundColor: colors.hairline }]} />
+            </View>
+          )}
           <TextInput
             style={[styles.search, { backgroundColor: colors.surfaceAlt, color: colors.text }]}
             placeholder="Search conversations"
@@ -105,4 +135,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     gap: 2,
   },
+  domains: { marginBottom: space(3) },
+  domainRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space(2.5),
+    paddingVertical: space(2.5),
+  },
+  divider: { height: StyleSheet.hairlineWidth, marginTop: space(2) },
 });

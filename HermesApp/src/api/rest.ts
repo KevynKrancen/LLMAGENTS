@@ -38,6 +38,8 @@ export interface WorkspaceNode {
   name: string;
   icon: string;
   items: number;
+  /** Artifact id rendered as this folder's custom UI, '' if none. */
+  dashboard: string;
   children: WorkspaceNode[];
 }
 
