@@ -92,6 +92,25 @@ export interface CatalogEntry {
   fields: { key: string; label: string; secret?: boolean }[];
 }
 
+export interface ReceiptRecord {
+  id: string;
+  tool: string;
+  summary: string;
+  reversibility: 'full' | 'partial' | 'none';
+  undone: boolean;
+  seen: boolean;
+  source: string;
+  created_at: string;
+  can_undo: boolean;
+}
+
+export interface HubData {
+  unseen_actions: number;
+  workspace: WorkspaceNode[];
+  recent_threads: ThreadSummary[];
+  routines: Pick<RoutineRecord, 'id' | 'name' | 'cron' | 'last_result'>[];
+}
+
 export const api = {
   health: () => request<{ ok: boolean; model: string }>('/health'),
   threads: (query = '') =>
@@ -101,6 +120,12 @@ export const api = {
   artifacts: (space = '') =>
     request<ArtifactRecord[]>(`/artifacts${space ? `?space=${encodeURIComponent(space)}` : ''}`),
   workspace: () => request<WorkspaceNode[]>('/workspace'),
+  hub: () => request<HubData>('/hub'),
+  ledger: (unseenOnly = false) =>
+    request<ReceiptRecord[]>(`/ledger${unseenOnly ? '?unseen_only=true' : ''}`),
+  ledgerSeen: () => request<{ ok: boolean }>('/ledger/seen', { method: 'POST' }),
+  undoReceipt: (id: string) =>
+    request<{ result: string }>(`/ledger/${id}/undo`, { method: 'POST' }),
   routines: () => request<RoutineRecord[]>('/routines'),
   createRoutine: (body: { name: string; cron: string; prompt: string }) =>
     request<{ id: string }>('/routines', { method: 'POST', body: JSON.stringify(body) }),

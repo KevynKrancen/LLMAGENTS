@@ -110,7 +110,25 @@ def send_doorbell(command: str, payload: dict[str, Any]) -> None:
     )
 
 
+_DAILY_PUSH_BUDGET = 4  # proactive interruptions per day; overflow → ledger only
+
+
+def _budget_available(kind: str) -> bool:
+    """Doorbells are user-initiated (exempt); routine pushes spend budget."""
+    if kind == "device_poll":
+        return True
+    rows = db.query(
+        "SELECT count(*) AS n FROM hermes.push_log "
+        "WHERE kind='routine_result' AND sent_at > now() - interval '24 hours'"
+    )
+    return (rows[0]["n"] if rows else 0) < _DAILY_PUSH_BUDGET
+
+
 def send_routine_result(routine_name: str, summary: str) -> None:
+    if not _budget_available("routine_result"):
+        logger.info("Push budget spent — %s lands in the ledger silently.", routine_name)
+        return  # the routine's receipt still appears in the ledger
+    db.execute("INSERT INTO hermes.push_log (kind) VALUES ('routine_result')")
     apns.send(
         title=routine_name,
         body=summary[:180],

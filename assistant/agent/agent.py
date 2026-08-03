@@ -119,12 +119,15 @@ def build_assistant_graph(mode: Mode = "chat", extra_tools: list | None = None):
     """Build and return the compiled assistant graph (sync, static tools only)."""
     from ..tools.apps import APP_TOOLS
 
+    from .receipts import ReceiptMiddleware
+
     middleware = [
         CopilotKitMiddleware(),
         ModelSelectMiddleware(),
         MemorySnapshotMiddleware(),
         Mem0Middleware(),
         SessionLogMiddleware(source=mode),
+        ReceiptMiddleware(source=mode),
     ]
     tools = [*_TOOLSETS[mode](), *(extra_tools or [])]
     if mode == "chat":

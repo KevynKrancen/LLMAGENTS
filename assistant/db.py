@@ -103,6 +103,26 @@ CREATE TABLE IF NOT EXISTS hermes.integrations (
 
 ALTER TABLE hermes.artifacts ADD COLUMN IF NOT EXISTS space TEXT NOT NULL DEFAULT '';
 
+-- Action receipts: everything the agent DID, auditable and (where
+-- possible) reversible. The app's "while you were away" ledger.
+CREATE TABLE IF NOT EXISTS hermes.receipts (
+    id TEXT PRIMARY KEY,
+    tool TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    reversibility TEXT NOT NULL DEFAULT 'none',  -- full | partial | none
+    undo JSONB,                                  -- {kind, args} descriptor
+    source TEXT NOT NULL DEFAULT 'chat',
+    undone BOOLEAN NOT NULL DEFAULT FALSE,
+    seen BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS hermes.push_log (
+    id BIGSERIAL PRIMARY KEY,
+    kind TEXT NOT NULL,
+    sent_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS hermes.memory_files (
     name TEXT PRIMARY KEY,                   -- 'MEMORY' | 'USER'
     content TEXT NOT NULL DEFAULT '',

@@ -1,5 +1,5 @@
 /** Home = the whole app: one serene chat screen, everything else hidden. */
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -15,10 +15,10 @@ import { ApprovalSheet } from '../src/components/ApprovalSheet';
 import { CapabilitySheet } from '../src/components/CapabilitySheet';
 import { Composer } from '../src/components/Composer';
 import { EmptyGreeting } from '../src/components/EmptyGreeting';
+import { Hub } from '../src/components/Hub';
 import { MenuSheet } from '../src/components/MenuSheet';
 import { MessageBubble } from '../src/components/MessageBubble';
 import { ModelSheet } from '../src/components/ModelSheet';
-import { ThreadDrawer } from '../src/components/ThreadDrawer';
 import { Symbol } from '../src/components/Symbol';
 import { ToolActivityBar } from '../src/components/ToolActivityBar';
 import { useChat } from '../src/state/chat';
@@ -33,7 +33,19 @@ export default function Home() {
   const [plusOpen, setPlusOpen] = useState(false);
   const [modelOpen, setModelOpen] = useState(false);
   const [prefill, setPrefill] = useState('');
+  const [unseenActions, setUnseenActions] = useState(0);
   const listRef = useRef<FlatList>(null);
+
+  useEffect(() => {
+    if (!drawerOpen) {
+      import('../src/api/rest').then(({ api }) =>
+        api
+          .hub()
+          .then((hub) => setUnseenActions(hub.unseen_actions))
+          .catch(() => setUnseenActions(0)),
+      );
+    }
+  }, [drawerOpen]);
 
   const send = (text: string) => {
     void chat.send(text);
@@ -54,6 +66,18 @@ export default function Home() {
           </View>
         </Pressable>
       </View>
+
+      {unseenActions > 0 && (
+        <Pressable
+          onPress={() => setDrawerOpen(true)}
+          style={[styles.awayPill, { backgroundColor: colors.surfaceAlt, borderColor: colors.hairline }]}
+        >
+          <View style={[styles.awayDot, { backgroundColor: colors.accent }]} />
+          <Text style={{ color: colors.text, fontSize: typ.small }}>
+            {unseenActions} thing{unseenActions > 1 ? 's' : ''} done while you were away
+          </Text>
+        </Pressable>
+      )}
 
       <KeyboardAvoidingView
         style={styles.flex}
@@ -90,17 +114,11 @@ export default function Home() {
         />
       </KeyboardAvoidingView>
 
-      <ThreadDrawer
+      <Hub
         visible={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        onNew={() => {
-          chat.newThread();
-          setDrawerOpen(false);
-        }}
-        onPick={(threadId) => {
-          void chat.loadThread(threadId);
-          setDrawerOpen(false);
-        }}
+        onNewChat={() => chat.newThread()}
+        onPickThread={(threadId) => void chat.loadThread(threadId)}
       />
       <MenuSheet visible={menuOpen} onClose={() => setMenuOpen(false)} />
       <CapabilitySheet
@@ -134,4 +152,16 @@ const styles = StyleSheet.create({
   },
   list: { paddingHorizontal: space(4), paddingBottom: space(4) },
   error: { paddingHorizontal: space(5), paddingBottom: space(1), fontSize: typ.small },
+  awayPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space(2),
+    alignSelf: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 18,
+    paddingHorizontal: space(3.5),
+    paddingVertical: space(1.5),
+    marginTop: space(1),
+  },
+  awayDot: { width: 6, height: 6, borderRadius: 3 },
 });

@@ -119,6 +119,13 @@ class RoutineManager:
             "UPDATE hermes.routines SET last_run_at=now(), last_result=%s WHERE id=%s",
             (result[:2000], routine.id),
         )
+        import uuid as _uuid
+
+        db.execute(
+            "INSERT INTO hermes.receipts (id, tool, summary, reversibility, source) "
+            "VALUES (%s, 'routine_run', %s, 'none', 'routine')",
+            (_uuid.uuid4().hex[:12], f"{routine.name} — {result[:90]}"),
+        )
         from ..server.push import send_routine_result
 
         send_routine_result(routine.name, result)

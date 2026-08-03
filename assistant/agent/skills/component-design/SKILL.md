@@ -35,5 +35,18 @@ app in light AND dark: `var(--bg) --surface --surface-alt --text --subtle
   left border.
 - **Stats/comparison**: grid of stat tiles (label / big value / delta).
 
+## Actions — components are ALIVE, not pictures
+Any element can act via two link schemes (use <a href> or onclick-free
+buttons wrapped in <a>):
+- `hermes://open?url=<url-encoded target>` — opens on the phone: apps and
+  deep links (`youtube://watch?v=…`, `spotify:track:…`, `maps:?q=…`,
+  https links). A weather card's hourly row can open the Weather app; a
+  video result carries its own real ▶ play button.
+- `hermes://say?text=<url-encoded message>` — sends a message to you as
+  the user (follow-ups, refinements, confirmations). An inbox digest row
+  can carry "summarize" / "reply" chips; a stat tile can offer "details".
+Style action elements as quiet chips or a play glyph — affordances, not
+web buttons.
+
 Keep components under ~1600 chars of HTML when possible; they should feel
 like a native widget, not a webpage.

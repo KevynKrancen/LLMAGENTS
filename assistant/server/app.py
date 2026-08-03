@@ -271,6 +271,61 @@ async def shortcuts_manifest() -> dict:
     }
 
 
+# --- Action ledger (trust surface: audit + undo) -----------------------------
+
+@app.get("/ledger")
+async def ledger(limit: int = 30, unseen_only: bool = False) -> list[dict]:
+    where = "WHERE NOT seen" if unseen_only else ""
+    return db.query(
+        f"""SELECT id, tool, summary, reversibility, undone, seen,
+                   source, created_at::text AS created_at,
+                   (undo IS NOT NULL AND NOT undone) AS can_undo
+            FROM hermes.receipts {where}
+            ORDER BY created_at DESC LIMIT %s""",
+        (min(limit, 100),),
+    )
+
+
+@app.post("/ledger/seen")
+async def ledger_seen() -> dict:
+    db.execute("UPDATE hermes.receipts SET seen=TRUE WHERE NOT seen")
+    return {"ok": True}
+
+
+@app.post("/ledger/{receipt_id}/undo")
+async def ledger_undo(receipt_id: str) -> dict:
+    from ..agent.receipts import execute_undo
+
+    try:
+        return {"result": execute_undo(receipt_id)}
+    except Exception as exc:
+        raise HTTPException(500, f"Undo failed: {exc}") from exc
+
+
+# --- Hub (agent-composed home surface) ---------------------------------------
+
+@app.get("/hub")
+async def hub() -> dict:
+    """Everything the agent keeps, in one composed surface."""
+    from ..tools.workspace import _tree
+
+    unseen = db.query("SELECT count(*) AS n FROM hermes.receipts WHERE NOT seen")
+    recent_threads = db.query(
+        "SELECT thread_id, title, updated_at::text AS updated_at FROM hermes.threads "
+        "WHERE source='chat' ORDER BY updated_at DESC LIMIT 4"
+    )
+    next_routines = db.query(
+        "SELECT id, name, cron, last_result FROM hermes.routines WHERE enabled "
+        "ORDER BY created_at LIMIT 3"
+    )
+    return {
+        "unseen_actions": unseen[0]["n"] if unseen else 0,
+        "workspace": _tree(),
+        "recent_threads": recent_threads,
+        "routines": next_routines,
+    }
+
+
 # --- Connectors (the app platform) ------------------------------------------
 
 class ConnectorIn(BaseModel):

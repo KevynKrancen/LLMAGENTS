@@ -6,11 +6,15 @@
  * components look native in both light and dark themes.
  */
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import * as Linking from 'expo-linking';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-import { radius, space } from '../theme/tokens';
+import { useChat } from '../state/chat';
+import { radius, space, type as typ } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
+
+const RESHAPE_OPTIONS = ['Simpler', 'More detail', 'As a chart'] as const;
 
 const SIZER = `
   <script>
@@ -23,6 +27,22 @@ const SIZER = `
 export function HtmlComponentCard({ html }: { html: string }) {
   const { colors, dark } = useTheme();
   const [height, setHeight] = useState(120);
+  const [reshapeVisible, setReshapeVisible] = useState(false);
+
+  /** Components are alive: hermes://open opens the phone, hermes://say talks back. */
+  const handleAction = (url: string): boolean => {
+    if (url.startsWith('hermes://open')) {
+      const target = new URL(url).searchParams.get('url');
+      if (target) void Linking.openURL(target).catch(() => undefined);
+      return false;
+    }
+    if (url.startsWith('hermes://say')) {
+      const text = new URL(url).searchParams.get('text');
+      if (text) void useChat.getState().send(text);
+      return false;
+    }
+    return url === 'about:blank' || url.startsWith('data:');
+  };
 
   const document = `<!doctype html><html><head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -39,20 +59,37 @@ export function HtmlComponentCard({ html }: { html: string }) {
     </style></head><body>${html}${SIZER}</body></html>`;
 
   return (
-    <View style={[styles.card, { borderColor: colors.hairline, backgroundColor: colors.surface }]}>
-      <WebView
-        source={{ html: document }}
-        style={[styles.web, { height: Math.min(height + 8, 560) }]}
-        originWhitelist={['*']}
-        scrollEnabled={height > 552}
-        onMessage={(event) => {
-          const next = Number(event.nativeEvent.data);
-          if (Number.isFinite(next) && next > 0) setHeight(next);
-        }}
-        // Generated components are display-only: never allow navigation out.
-        onShouldStartLoadWithRequest={(request) => request.url === 'about:blank' || request.url.startsWith('data:')}
-      />
-    </View>
+    <Pressable onLongPress={() => setReshapeVisible((v) => !v)}>
+      <View style={[styles.card, { borderColor: colors.hairline, backgroundColor: colors.surface }]}>
+        <WebView
+          source={{ html: document }}
+          style={[styles.web, { height: Math.min(height + 8, 560) }]}
+          originWhitelist={['*']}
+          scrollEnabled={height > 552}
+          onMessage={(event) => {
+            const next = Number(event.nativeEvent.data);
+            if (Number.isFinite(next) && next > 0) setHeight(next);
+          }}
+          onShouldStartLoadWithRequest={(request) => handleAction(request.url)}
+        />
+      </View>
+      {reshapeVisible && (
+        <View style={styles.reshapeRow}>
+          {RESHAPE_OPTIONS.map((option) => (
+            <Pressable
+              key={option}
+              onPress={() => {
+                setReshapeVisible(false);
+                void useChat.getState().send(`Reshape the last component: ${option.toLowerCase()}.`);
+              }}
+              style={[styles.reshapeChip, { borderColor: colors.hairline }]}
+            >
+              <Text style={{ color: colors.subtle, fontSize: typ.micro }}>{option}</Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
+    </Pressable>
   );
 }
 
@@ -64,4 +101,11 @@ const styles = StyleSheet.create({
     marginTop: space(2),
   },
   web: { backgroundColor: 'transparent' },
+  reshapeRow: { flexDirection: 'row', gap: space(2), marginTop: space(2) },
+  reshapeChip: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.lg,
+    paddingHorizontal: space(3),
+    paddingVertical: space(1.5),
+  },
 });
