@@ -1,0 +1,986 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hermes — UI Gallery</title><style>
+  :root{
+    --bg:#FAFAF8; --surface:#FFF; --surfaceAlt:#F4F3F0; --text:#111214; --subtle:#6B6E76;
+    --accent:#B08D57; --hairline:#E7E5E0; --bubble:#F1EADF;
+    --dbg:#0C0C0E; --dsurface:#16161A; --dsurfaceAlt:#1D1D22; --dtext:#F4F4F2; --dsubtle:#9A9DA6;
+    --daccent:#C9A265; --dhairline:#26262B; --dbubble:#242028;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#EDEBE6;font-family:-apple-system,'SF Pro Text',Segoe UI,sans-serif;padding:40px 20px;}
+  h1{font-family:Georgia,'New York',serif;font-weight:600;text-align:center;font-size:28px;color:#111214;margin-bottom:6px}
+  .sub{text-align:center;color:#6B6E76;font-size:14px;margin-bottom:36px}
+  .row{display:flex;gap:28px;justify-content:center;flex-wrap:wrap}
+  .phone{width:300px;height:640px;border-radius:44px;background:#000;padding:10px;box-shadow:0 24px 60px rgba(0,0,0,.25);flex-shrink:0}
+  .screen{width:100%;height:100%;border-radius:36px;overflow:hidden;position:relative;display:flex;flex-direction:column;background:var(--bg)}
+  .screen.dark{background:var(--dbg)}
+  .notch{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:90px;height:24px;background:#000;border-radius:14px;z-index:9}
+  .cap{text-align:center;color:#6B6E76;font-size:13px;margin-top:14px;font-weight:500}
+  /* top bar */
+  .top{display:flex;align-items:center;justify-content:space-between;padding:44px 20px 8px}
+  .top .menu{color:var(--subtle);font-size:17px}
+  .dark .top .menu{color:var(--dsubtle)}
+  .wordmark{font-family:Georgia,serif;font-weight:600;font-size:16px;letter-spacing:.5px;color:var(--text)}
+  .dark .wordmark{color:var(--dtext)}
+  .avatar{width:26px;height:26px;border-radius:13px;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+  .dark .avatar{background:var(--daccent);color:#141414}
+  /* greeting */
+  .greet{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:0 24px}
+  .greet h2{font-family:Georgia,serif;font-weight:500;font-size:26px;color:var(--text);text-align:center}
+  .dark .greet h2{color:var(--dtext)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .chip{border:1px solid var(--hairline);background:var(--surface);color:var(--subtle);font-size:12px;border-radius:18px;padding:7px 14px}
+  .dark .chip{border-color:var(--dhairline);background:var(--dsurface);color:var(--dsubtle)}
+  /* composer */
+  .composer{padding:0 16px 26px}
+  .modelchip{text-align:center;color:var(--subtle);font-size:10px;padding:6px}
+  .dark .modelchip{color:var(--dsubtle)}
+  .bar{display:flex;align-items:center;gap:8px;border:1px solid var(--hairline);background:var(--surface);border-radius:26px;padding:10px 14px}
+  .dark .bar{border-color:var(--dhairline);background:var(--dsurface)}
+  .bar .plus{color:var(--subtle);font-size:20px}
+  .dark .bar .plus{color:var(--dsubtle)}
+  .bar .ph{color:var(--subtle);font-size:14px;flex:1}
+  .dark .bar .ph{color:var(--dsubtle)}
+  .send{width:28px;height:28px;border-radius:14px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .dark .send{background:var(--daccent);color:#141414}
+  /* chat */
+  .msgs{flex:1;padding:8px 16px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+  .user{align-self:flex-end;max-width:82%;background:var(--bubble);border-radius:18px 18px 8px 18px;padding:9px 14px;font-size:13.5px;color:var(--text)}
+  .dark .user{background:var(--dbubble);color:var(--dtext)}
+  .ai{font-size:13.5px;color:var(--text);line-height:1.55}
+  .dark .ai{color:var(--dtext)}
+  .think{color:var(--subtle);font-size:11.5px}
+  .dark .think{color:var(--dsubtle)}
+  .card{border:1px solid var(--hairline);background:var(--surface);border-radius:14px;padding:12px 14px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
+  .dark .card{border-color:var(--dhairline);background:var(--dsurface);box-shadow:none}
+  .card .t{font-size:13.5px;font-weight:600;color:var(--text)}
+  .dark .card .t{color:var(--dtext)}
+  .card .s{font-size:11.5px;color:var(--subtle);margin-top:2px}
+  .dark .card .s{color:var(--dsubtle)}
+  .media{display:flex;align-items:center;gap:12px}
+  .play{width:36px;height:36px;border-radius:18px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+  .dark .play{background:var(--daccent);color:#141414}
+  .step{display:flex;gap:8px;font-size:12px;color:var(--text);margin-top:6px;align-items:center}
+  .dark .step{color:var(--dtext)}
+  .step .done{color:#2E7D5B}.step .prog{color:var(--accent)}.step .pend{color:var(--subtle)}
+  .activity{display:flex;gap:6px;padding:0 16px 8px}
+  .achip{border:1px solid var(--hairline);background:var(--surfaceAlt);border-radius:16px;padding:5px 11px;font-size:11px;color:var(--subtle)}
+  .dark .achip{border-color:var(--dhairline);background:var(--dsurfaceAlt);color:var(--dsubtle)}
+  /* sheet */
+  .sheetwrap{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;z-index:5}
+  .sheet{background:var(--surface);border-radius:20px 20px 0 0;width:100%;padding:10px 18px 34px}
+  .dark .sheet{background:var(--dsurface)}
+  .grab{width:36px;height:4px;border-radius:2px;background:var(--hairline);margin:0 auto 14px}
+  .dark .grab{background:var(--dhairline)}
+  .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .cell{background:var(--surfaceAlt);border-radius:14px;padding:14px 6px;text-align:center}
+  .dark .cell{background:var(--dsurfaceAlt)}
+  .cell .ic{font-size:18px;color:var(--accent)}
+  .dark .cell .ic{color:var(--daccent)}
+  .cell .lb{font-size:9.5px;color:var(--text);margin-top:6px}
+  .dark .cell .lb{color:var(--dtext)}
+  .sheet h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:12px}
+  .dark .sheet h3{color:var(--dtext)}
+  .req{background:var(--surfaceAlt);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+  .dark .req{background:var(--dsurfaceAlt)}
+  .req .a{font-size:13px;font-weight:600;color:var(--text);text-transform:capitalize}
+  .dark .req .a{color:var(--dtext)}
+  .req .d{font-size:11px;color:var(--subtle);margin-top:3px}
+  .dark .req .d{color:var(--dsubtle)}
+  .btns{display:flex;gap:10px}
+  .btn{flex:1;border-radius:12px;padding:11px 0;text-align:center;font-size:13px}
+  .btn.gray{background:var(--surfaceAlt);color:var(--text)}
+  .dark .btn.gray{background:var(--dsurfaceAlt);color:var(--dtext)}
+  .btn.gold{background:var(--accent);color:#fff;font-weight:600}
+  .dark .btn.gold{background:var(--daccent);color:#141414}
+  /* screens list */
+  .pagetitle{font-family:Georgia,serif;font-weight:600;font-size:24px;color:var(--text);padding:52px 18px 8px}
+  .dark .pagetitle{color:var(--dtext)}
+  .lrow{display:flex;align-items:center;gap:12px;border:1px solid var(--hairline);background:var(--surface);border-radius:14px;padding:13px 14px;margin:0 16px 10px}
+  .dark .lrow{border-color:var(--dhairline);background:var(--dsurface)}
+  .lrow .ic{font-size:16px;color:var(--accent);width:22px;text-align:center}
+  .dark .lrow .ic{color:var(--daccent)}
+  .lrow .t{font-size:13px;font-weight:600;color:var(--text)}
+  .dark .lrow .t{color:var(--dtext)}
+  .lrow .s{font-size:10.5px;color:var(--subtle);margin-top:1px}
+  .dark .lrow .s{color:var(--dsubtle)}
+  .lrow .on{margin-left:auto;width:36px;height:21px;border-radius:11px;background:var(--accent);position:relative}
+  .dark .lrow .on{background:var(--daccent)}
+  .lrow .on:after{content:'';position:absolute;right:2px;top:2px;width:17px;height:17px;border-radius:9px;background:#fff}
+  .addbar{margin:6px 16px;display:flex;gap:8px}
+  .addbtn{flex:1;border:1px dashed var(--hairline);border-radius:12px;padding:10px 0;text-align:center;font-size:11px;color:var(--subtle)}
+  .dark .addbtn{border-color:var(--dhairline);color:var(--dsubtle)}
+</style></head>
+<body>
+<h1>Hermes — UI Gallery</h1>
+<div class="sub">Every surface of the assistant — conversation does, UI keeps</div>
+<h2 style="font-family:Georgia,serif;font-weight:600;font-size:20px;color:#111214;text-align:center;margin:44px 0 18px">Home & the Hub</h2><div class="row"><div>
+  <div class="phone"><div class="screen" style="display:flex;flex-direction:column;">
+    <div class="notch"></div>
+    <div class="top">
+      <div class="menu"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="wordmark">Hermes</div>
+      <div class="avatar">K</div>
+    </div>
+    <div style="display:flex;justify-content:center;margin-top:12px;">
+      <div style="display:flex;align-items:center;gap:7px;border:1px solid var(--hairline);background:var(--surface);border-radius:18px;padding:6px 13px;font-size:11px;color:var(--subtle);">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block;"></span>
+        3 things done while you were away
+      </div>
+    </div>
+    <div class="greet" style="flex:1;justify-content:center;">
+      <div style="font-family:Georgia,serif;font-size:26px;color:var(--text);">Good evening, Kevyn</div>
+      <div style="font-size:11px;color:var(--subtle);margin-top:7px;">Monday · 19:42 in Be&#39;er Sheva</div>
+      <div class="chips" style="margin-top:20px;">
+        <div class="chip">Plan my day</div>
+        <div class="chip">Play some music</div>
+        <div class="chip">What&#39;s in my inbox?</div>
+        <div class="chip">Morning brief</div>
+      </div>
+    </div>
+    <div class="composer">
+      <div class="modelchip">claude-sonnet-5 ▾</div>
+      <div class="bar">
+        <div class="plus"><svg width="16" height="16" viewBox="0 0 24 24" style="color:var(--subtle)"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="ph">Ask Hermes anything…</div>
+        <div class="send"><svg width="14" height="14" viewBox="0 0 24 24" style="color:#fff"><path d="M12 18V6M7 11l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">Home — a quiet pill notes overnight work; one tap opens the Hub.</div>
+</div>
+
+<div>
+  <div class="phone"><div class="screen dark" style="display:flex;flex-direction:column;">
+    <div class="notch"></div>
+    <div style="padding:38px 18px 0 18px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:Georgia,serif;font-size:22px;color:var(--dtext);">Hermes keeps</div>
+      <svg width="16" height="16" viewBox="0 0 24 24" style="color:var(--dsubtle)"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div style="padding:14px 18px 0 18px;">
+      <div style="font-size:9px;letter-spacing:1.6px;color:var(--dsubtle);">WHILE YOU WERE AWAY</div>
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--dhairline);">
+        <span style="width:7px;height:7px;border-radius:50%;background:#6FA57C;margin-top:4px;flex-shrink:0;"></span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;color:var(--dtext);">Rescheduled dentist to Thu 15:00</div>
+          <div style="font-size:9px;color:var(--dsubtle);margin-top:2px;">today 07:12 · routine</div>
+        </div>
+        <div style="font-size:10px;color:var(--daccent);margin-top:1px;">Undo</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--dhairline);">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--daccent);margin-top:4px;flex-shrink:0;"></span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;color:var(--dtext);">Sent weekly report to Sarah</div>
+          <div style="font-size:9px;color:var(--dsubtle);margin-top:2px;">today 06:30 · rhythm</div>
+        </div>
+        <div style="font-size:10px;color:var(--dsubtle);margin-top:1px;">Sent</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;">
+        <span style="width:7px;height:7px;border-radius:50%;background:#6FA57C;opacity:.45;margin-top:4px;flex-shrink:0;"></span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;color:var(--dsubtle);text-decoration:line-through;">Created routine: Evening expenses</div>
+          <div style="font-size:9px;color:var(--dsubtle);margin-top:2px;">yesterday 21:04</div>
+        </div>
+        <div style="font-size:10px;color:var(--dsubtle);margin-top:1px;">Undone</div>
+      </div>
+    </div>
+    <div style="padding:12px 18px 0 18px;">
+      <div style="font-size:9px;letter-spacing:1.6px;color:var(--dsubtle);">YOUR SPACE</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--dhairline);">
+        <svg width="14" height="14" viewBox="0 0 24 24" style="color:var(--daccent);flex-shrink:0;"><path d="M4 19h16M7 19v-5M12 19v-9M17 19v-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="flex:1;font-size:11px;color:var(--dtext);">Finance</div>
+        <div style="font-size:10px;color:var(--dsubtle);">2 ▸</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--dhairline);">
+        <svg width="14" height="14" viewBox="0 0 24 24" style="color:var(--daccent);flex-shrink:0;"><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M4 8.5A1.5 1.5 0 0 1 5.5 7h13A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="flex:1;font-size:11px;color:var(--dtext);">Travel</div>
+        <div style="font-size:10px;color:var(--dsubtle);">1 ▸</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;padding:7px 0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" style="color:var(--daccent);flex-shrink:0;"><path d="M3 9.5L12 5l9 4.5-9 4.5-9-4.5zM6.5 11.8v3.7c0 1.2 2.5 2 5.5 2s5.5-.8 5.5-2v-3.7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="flex:1;font-size:11px;color:var(--dtext);">Academy</div>
+        <div style="font-size:10px;color:var(--dsubtle);">3 ▸</div>
+      </div>
+    </div>
+    <div style="padding:12px 18px 0 18px;">
+      <div style="font-size:9px;letter-spacing:1.6px;color:var(--dsubtle);">RHYTHMS</div>
+      <div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--dhairline);">
+        <svg width="13" height="13" viewBox="0 0 24 24" style="color:var(--daccent);flex-shrink:0;"><path d="M17 3l3 3-3 3M20 6H9a5 5 0 0 0-5 5M7 21l-3-3 3-3M4 18h11a5 5 0 0 0 5-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="flex:1;font-size:11px;color:var(--dtext);">Morning brief</div>
+        <div style="font-size:9px;color:var(--dsubtle);font-family:ui-monospace,Menlo,monospace;">0 7 * * *</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;padding:7px 0;">
+        <svg width="13" height="13" viewBox="0 0 24 24" style="color:var(--daccent);flex-shrink:0;"><path d="M17 3l3 3-3 3M20 6H9a5 5 0 0 0-5 5M7 21l-3-3 3-3M4 18h11a5 5 0 0 0 5-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="flex:1;font-size:11px;color:var(--dtext);">Evening expenses</div>
+        <div style="font-size:9px;color:var(--dsubtle);font-family:ui-monospace,Menlo,monospace;">0 21 * * *</div>
+      </div>
+    </div>
+    <div style="padding:12px 18px 0 18px;flex:1;min-height:0;overflow:hidden;">
+      <div style="font-size:9px;letter-spacing:1.6px;color:var(--dsubtle);">CONVERSATIONS</div>
+      <div style="display:flex;align-items:center;gap:7px;background:var(--dsurfaceAlt);border-radius:10px;padding:6px 10px;margin-top:7px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" style="color:var(--dsubtle);flex-shrink:0;"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M20 20l-4.6-4.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <div style="font-size:10px;color:var(--dsubtle);">Search conversations</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--dhairline);">
+        <div style="flex:1;font-size:11px;color:var(--dtext);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Eilat weekend — hotel options</div>
+        <div style="font-size:9px;color:var(--dsubtle);">2h</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 0;">
+        <div style="flex:1;font-size:11px;color:var(--dtext);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Q3 budget review with Sarah</div>
+        <div style="font-size:9px;color:var(--dsubtle);">Fri</div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:8px;padding:10px 18px 16px 18px;">
+      <div style="display:flex;align-items:center;gap:6px;border:1px solid var(--dhairline);border-radius:14px;padding:6px 10px;font-size:10px;color:var(--dsubtle);">
+        <svg width="12" height="12" viewBox="0 0 24 24" style="color:var(--daccent)"><path d="M9 3v4M15 3v4M7 7h10v4a5 5 0 0 1-5 5 5 5 0 0 1-5-5V7zM12 16v5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Connectors
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;border:1px solid var(--dhairline);border-radius:14px;padding:6px 10px;font-size:10px;color:var(--dsubtle);">
+        <svg width="12" height="12" viewBox="0 0 24 24" style="color:var(--daccent)"><path d="M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Artifacts
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;border:1px solid var(--dhairline);border-radius:14px;padding:6px 10px;font-size:10px;color:var(--dsubtle);">
+        <svg width="12" height="12" viewBox="0 0 24 24" style="color:var(--daccent)"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h9M17 17h3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="9" cy="12" r="2" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="15" cy="17" r="2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+        Settings
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">The Hub — receipts, spaces, rhythms and threads; undoable until it isn&#39;t.</div>
+</div>
+
+<div>
+  <div class="phone"><div class="screen" style="display:flex;flex-direction:column;position:relative;">
+    <div class="notch"></div>
+    <div class="top">
+      <div class="menu"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="wordmark">Hermes</div>
+      <div class="avatar">K</div>
+    </div>
+    <div class="msgs" style="flex:1;padding:14px 16px;">
+      <div class="user">tell Dana I&#39;ll be late</div>
+      <div class="think">Drafting a WhatsApp to Dana…</div>
+      <div class="ai">Draft staged — one tap to send.</div>
+    </div>
+    <div class="sheetwrap">
+      <div class="sheet">
+        <div class="grab"></div>
+        <div style="font-size:11px;letter-spacing:0.4px;color:var(--subtle);margin:6px 0 10px 0;">Hermes wants to…</div>
+        <div class="req">
+          <div class="a" style="display:flex;align-items:center;gap:7px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" style="color:var(--accent);flex-shrink:0;"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Send WhatsApp
+          </div>
+          <div class="d">to Dana — &quot;Running ~10 min late, order me a lemonade&quot;</div>
+        </div>
+        <div class="btns">
+          <div class="btn gray">Not now</div>
+          <div class="btn gold">Approve</div>
+        </div>
+        <div style="text-align:center;font-size:9px;color:var(--subtle);margin-top:9px;">Nothing sends without you.</div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">Approvals arrive as staged work — the draft is ready, one tap ships it.</div>
+</div></div><h2 style="font-family:Georgia,serif;font-weight:600;font-size:20px;color:#111214;text-align:center;margin:44px 0 18px">Alive generated components</h2><div class="row"><div>
+  <div class="phone"><div class="screen">
+    <div class="notch"></div>
+    <div class="top">
+      <div class="menu"><svg width="16" height="16" viewBox="0 0 24 24" style="color:var(--text)"><path d="M4 8.5h16M4 15.5h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="wordmark">Hermes</div>
+      <div class="avatar">K</div>
+    </div>
+    <div class="msgs">
+      <div class="user">weather tomorrow?</div>
+      <div class="think">Checked IMS forecast · Be'er Sheva · Tue 4 Aug</div>
+      <div class="ai">Warm one in Be'er Sheva.</div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div style="background:linear-gradient(160deg,#FDF3E3,#F6E7CF);padding:14px 16px 12px">
+          <div style="font-size:9px;letter-spacing:2px;color:#8A6B3F">TOMORROW · BE'ER SHEVA</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:7px">
+            <div style="font-family:Georgia,serif;font-size:38px;line-height:1;color:#2F2A21">34°</div>
+            <svg width="30" height="30" viewBox="0 0 24 24" style="color:var(--accent)"><circle cx="12" cy="12" r="4.4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M5.4 18.6l1.5-1.5M17.1 6.9l1.5-1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </div>
+          <div style="font-size:10px;color:#8A6B3F;margin-top:7px">clear · wind 14 km/h · night 22°</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:12px 16px 10px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:9px;letter-spacing:1px;color:var(--subtle)">WED</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" style="color:var(--accent)"><circle cx="12" cy="12" r="4.4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M5.4 18.6l1.5-1.5M17.1 6.9l1.5-1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span style="font-size:11px;color:var(--text)">34°</span>
+            <span style="font-size:9px;color:var(--subtle)">22°</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:9px;letter-spacing:1px;color:var(--subtle)">THU</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" style="color:var(--accent)"><circle cx="12" cy="12" r="4.4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M5.4 18.6l1.5-1.5M17.1 6.9l1.5-1.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span style="font-size:11px;color:var(--text)">35°</span>
+            <span style="font-size:9px;color:var(--subtle)">23°</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:9px;letter-spacing:1px;color:var(--subtle)">FRI</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" style="color:var(--subtle)"><path d="M6.8 17.5h9.7a3.3 3.3 0 0 0 .4-6.6 4.9 4.9 0 0 0-9.5-1.2 4 4 0 0 0-.6 7.8z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:11px;color:var(--text)">31°</span>
+            <span style="font-size:9px;color:var(--subtle)">21°</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <span style="font-size:9px;letter-spacing:1px;color:var(--subtle)">SAT</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" style="color:var(--subtle)"><path d="M15.6 8.3a3 3 0 1 1 3.3 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M5.8 18h8.4a3 3 0 0 0 .4-6 4.3 4.3 0 0 0-8.3-1 3.6 3.6 0 0 0-.5 7z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:11px;color:var(--text)">29°</span>
+            <span style="font-size:9px;color:var(--subtle)">19°</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;padding:9px 12px;border-top:1px solid var(--hairline)">
+          <span style="font-size:10px;color:var(--accent);border:1px solid var(--hairline);border-radius:999px;padding:4px 10px;background:var(--surface)">Hourly ›</span>
+          <span style="font-size:10px;color:var(--accent);border:1px solid var(--hairline);border-radius:999px;padding:4px 10px;background:var(--surface)">This weekend ›</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:2px">
+        <span style="font-size:10px;color:var(--subtle);border:1px solid var(--hairline);border-radius:999px;padding:4px 11px;background:var(--surface)">Simpler</span>
+        <span style="font-size:10px;color:var(--subtle);border:1px solid var(--hairline);border-radius:999px;padding:4px 11px;background:var(--surface)">More detail</span>
+        <span style="font-size:10px;color:var(--subtle);border:1px solid var(--hairline);border-radius:999px;padding:4px 11px;background:var(--surface)">As a chart</span>
+      </div>
+    </div>
+    <div class="composer" style="margin-top:auto">
+      <div class="modelchip">Claude Sonnet 4.6</div>
+      <div class="bar">
+        <div class="plus"><svg width="14" height="14" viewBox="0 0 24 24" style="color:var(--subtle)"><path d="M12 5.5v13M5.5 12h13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+        <div class="ph">Message Hermes…</div>
+        <div class="send"><svg width="14" height="14" viewBox="0 0 24 24" style="color:#FFFFFF"><path d="M12 18.5v-13M6.5 11L12 5.5 17.5 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">Generated weather card — footer chips fire hermes:// actions; long-press reveals the reshape pills.</div>
+</div>
+
+<div>
+  <div class="phone"><div class="screen dark">
+    <div class="notch"></div>
+    <div class="top">
+      <div class="menu"><svg width="16" height="16" viewBox="0 0 24 24" style="color:var(--dtext)"><path d="M4 8.5h16M4 15.5h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="wordmark">Hermes</div>
+      <div class="avatar">K</div>
+    </div>
+    <div class="msgs">
+      <div class="user">emails from yesterday?</div>
+      <div class="think">Scanned 17 messages · filtered 12 promos</div>
+      <div class="ai">3 that matter.</div>
+      <div class="card" style="padding:2px 12px 0">
+        <div style="display:flex;gap:8px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--dhairline)">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--daccent);flex:none;margin-top:5px"></span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--dtext)">Noa Peretz</div>
+            <div style="font-size:11px;color:var(--dtext);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Thesis committee — new slot</div>
+            <div style="font-size:10px;color:var(--dsubtle);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Prof. Shapira can do Sun 11:00 — confirm tonight and I'll book…</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;flex:none;align-items:flex-end">
+            <span style="font-size:9px;color:var(--dsubtle);border:1px solid var(--dhairline);border-radius:999px;padding:2px 8px">reply</span>
+            <span style="font-size:9px;color:var(--dsubtle);border:1px solid var(--dhairline);border-radius:999px;padding:2px 8px">sum</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--dhairline)">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--daccent);flex:none;margin-top:5px"></span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--dtext)">Iriyat Be'er Sheva</div>
+            <div style="font-size:11px;color:var(--dtext);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Arnona — July statement</div>
+            <div style="font-size:10px;color:var(--dsubtle);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Your statement is ready. Balance due 12 Aug, ₪486…</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;flex:none;align-items:flex-end">
+            <span style="font-size:9px;color:var(--dsubtle);border:1px solid var(--dhairline);border-radius:999px;padding:2px 8px">reply</span>
+            <span style="font-size:9px;color:var(--dsubtle);border:1px solid var(--dhairline);border-radius:999px;padding:2px 8px">sum</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;padding:10px 0">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--daccent);flex:none;margin-top:5px"></span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--dtext)">GitHub</div>
+            <div style="font-size:11px;color:var(--dtext);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">hermes-app · PR #142 approved</div>
+            <div style="font-size:10px;color:var(--dsubtle);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">tomerv approved — "ship it, one nit on the retry backoff…"</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;flex:none;align-items:flex-end">
+            <span style="font-size:9px;color:var(--dsubtle);border:1px solid var(--dhairline);border-radius:999px;padding:2px 8px">reply</span>
+            <span style="font-size:9px;color:var(--dsubtle);border:1px solid var(--dhairline);border-radius:999px;padding:2px 8px">sum</span>
+          </div>
+        </div>
+        <div style="display:flex;padding:9px 0 11px;border-top:1px solid var(--dhairline)">
+          <span style="font-size:10px;color:var(--daccent);border:1px solid var(--dhairline);border-radius:999px;padding:4px 10px">Open Gmail ›</span>
+        </div>
+      </div>
+    </div>
+    <div class="composer" style="margin-top:auto">
+      <div class="modelchip">Claude Sonnet 4.6</div>
+      <div class="bar">
+        <div class="plus"><svg width="14" height="14" viewBox="0 0 24 24" style="color:var(--dsubtle)"><path d="M12 5.5v13M5.5 12h13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+        <div class="ph">Message Hermes…</div>
+        <div class="send"><svg width="14" height="14" viewBox="0 0 24 24" style="color:#141416"><path d="M12 18.5v-13M6.5 11L12 5.5 17.5 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">Inbox digest — every generated row carries its own reply / summarize actions.</div>
+</div>
+
+<div>
+  <div class="phone"><div class="screen dark">
+    <div class="notch"></div>
+    <div class="top">
+      <div class="menu"><svg width="16" height="16" viewBox="0 0 24 24" style="color:var(--dtext)"><path d="M4 8.5h16M4 15.5h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="wordmark">Hermes</div>
+      <div class="avatar">K</div>
+    </div>
+    <div class="msgs">
+      <div class="user">play something like Bonobo</div>
+      <div class="ai" style="display:flex;align-items:center;gap:5px">This should land <svg width="10" height="10" viewBox="0 0 24 24" style="color:var(--daccent)"><path d="M8 5.5l11 6.5-11 6.5z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+      <div class="card">
+        <div class="media" style="display:flex;align-items:center;gap:12px">
+          <div class="play" style="display:flex;align-items:center;justify-content:center;flex:none"><svg width="14" height="14" viewBox="0 0 24 24" style="color:#141416;margin-left:2px"><path d="M9 6.6l8.6 5.4L9 17.4z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--dtext)">Tycho — Awake</div>
+            <div style="font-size:10px;color:var(--dsubtle);margin-top:2px">opens YouTube · 4:37</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:11px;padding-top:11px;border-top:1px solid var(--dhairline)">
+          <svg width="16" height="16" viewBox="0 0 24 24" style="color:var(--daccent);flex:none"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.2 8.9l4.8 3.1-4.8 3.1z" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/></svg>
+          <div style="flex:1;min-width:0;font-size:11px;color:var(--dtext);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Bonobo — Kerala</div>
+          <div style="font-size:9px;color:var(--dsubtle);flex:none">3:58</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;margin-top:11px;padding-top:9px;border-top:1px solid var(--dhairline);font-size:9px;color:var(--dsubtle)">
+          <svg width="9" height="9" viewBox="0 0 24 24" style="color:var(--daccent);flex:none"><path d="M8 5.5l11 6.5-11 6.5z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          <span>tapped → youtube:// opens instantly</span>
+        </div>
+      </div>
+    </div>
+    <div class="activity" style="margin-top:auto">
+      <span class="achip" style="display:inline-flex;align-items:center;gap:5px"><svg width="11" height="11" viewBox="0 0 24 24" style="color:var(--daccent)"><path d="M4.5 12.8l5 5L19.5 6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Searching YouTube</span>
+    </div>
+    <div class="composer">
+      <div class="modelchip">Claude Sonnet 4.6</div>
+      <div class="bar">
+        <div class="plus"><svg width="14" height="14" viewBox="0 0 24 24" style="color:var(--dsubtle)"><path d="M12 5.5v13M5.5 12h13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+        <div class="ph">Message Hermes…</div>
+        <div class="send"><svg width="14" height="14" viewBox="0 0 24 24" style="color:#141416"><path d="M12 18.5v-13M6.5 11L12 5.5 17.5 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">Media cards deep-link — the play button opens YouTube instantly, no in-app player.</div>
+</div></div><h2 style="font-family:Georgia,serif;font-weight:600;font-size:20px;color:#111214;text-align:center;margin:44px 0 18px">Self-built domains & dashboards</h2><div class="row"><div>
+  <div class="phone"><div class="screen dark">
+    <div class="notch"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 2px;color:var(--dsubtle)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div style="padding:10px 18px 0;display:flex;align-items:center;gap:9px">
+      <span style="color:var(--daccent);display:flex"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6.2 12h.01M17.8 12h.01"/></svg></span>
+      <span style="font-family:Georgia,serif;font-size:21px;color:var(--dtext)">Polymarket</span>
+    </div>
+    <div style="padding:3px 18px 0;font-size:10px;color:var(--dsubtle)">Self-built domain · watching 3 markets</div>
+    <div style="margin:14px 16px 0;background:var(--dsurface);border:1px solid var(--dhairline);border-radius:16px;padding:14px 14px 11px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end">
+        <div>
+          <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--dsubtle)">Balance</div>
+          <div style="font-family:Georgia,serif;font-size:22px;color:var(--dtext);margin-top:2px">$18.40</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--dsubtle)">P&amp;L</div>
+          <div style="font-size:13px;color:#5BB08C;margin-top:3px">+$3.12</div>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--dhairline);margin:12px 0 4px"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0">
+        <div>
+          <div style="font-size:10px;color:var(--dtext)">Fed cuts in Sept</div>
+          <div style="font-size:9.5px;color:var(--dsubtle);margin-top:2px">YES · $6</div>
+        </div>
+        <div style="font-size:11px;color:#5BB08C">+$1.20</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid var(--dhairline)">
+        <div>
+          <div style="font-size:10px;color:var(--dtext)">TLV rain in Oct</div>
+          <div style="font-size:9.5px;color:var(--dsubtle);margin-top:2px">NO · $4</div>
+        </div>
+        <div style="font-size:11px;color:#C0625A">−$0.35</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid var(--dhairline)">
+        <div>
+          <div style="font-size:10px;color:var(--dtext)">ETH &gt; $8k EOY</div>
+          <div style="font-size:9.5px;color:var(--dsubtle);margin-top:2px">YES · $8</div>
+        </div>
+        <div style="font-size:11px;color:#5BB08C">+$2.27</div>
+      </div>
+      <div style="margin-top:6px;padding-top:9px;border-top:1px solid var(--dhairline);font-size:9px;color:var(--dsubtle);text-align:center">every trade passed approval · full receipts</div>
+    </div>
+    <div style="display:flex;gap:8px;padding:13px 16px 0">
+      <div style="display:flex;align-items:center;gap:6px;border:1px solid var(--dhairline);background:var(--dsurface);border-radius:999px;padding:7px 13px;font-size:11px;color:var(--dtext)">
+        <span style="color:var(--daccent);display:flex"><svg width="13" height="13" viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>Ledger
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;border:1px solid var(--dhairline);background:var(--dsurface);border-radius:999px;padding:7px 13px;font-size:11px;color:var(--dtext)">
+        <span style="color:var(--daccent);display:flex"><svg width="13" height="13" viewBox="0 0 24 24"><path d="M11 5a6 6 0 1 1 0 12 6 6 0 0 1 0-12zM19.8 19.8l-4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>Research
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">Polymarket agent — a domain Hermes built</div>
+</div>
+
+<div>
+  <div class="phone"><div class="screen">
+    <div class="notch"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 2px;color:var(--subtle)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div style="padding:10px 18px 0;display:flex;align-items:center;gap:9px">
+      <span style="color:var(--accent);display:flex"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H4"/><path d="M16 13.5h.01"/></svg></span>
+      <span style="font-family:Georgia,serif;font-size:21px;color:var(--text)">Budget</span>
+    </div>
+    <div style="padding:3px 18px 0;font-size:10px;color:var(--subtle)">Self-built domain · shekel ledger, Be&#39;er Sheva</div>
+    <div style="margin:14px 16px 0;background:var(--surface);border:1px solid var(--hairline);border-radius:16px;padding:14px 14px 11px">
+      <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--subtle)">August spend</div>
+      <div style="margin-top:3px;display:flex;align-items:baseline;gap:6px">
+        <span style="font-family:Georgia,serif;font-size:22px;color:var(--text)">₪3,420</span>
+        <span style="font-size:12px;color:var(--subtle)">/ ₪5,000</span>
+      </div>
+      <div style="height:6px;background:var(--surfaceAlt);border-radius:3px;margin-top:10px"><div style="height:6px;width:68%;background:var(--accent);border-radius:3px"></div></div>
+      <div style="margin-top:12px;border-top:1px solid var(--hairline)">
+        <div style="padding:9px 0 2px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text)"><span>Groceries</span><span style="color:var(--subtle)">₪980</span></div>
+          <div style="height:4px;background:var(--surfaceAlt);border-radius:2px;margin-top:5px"><div style="height:4px;width:78%;background:var(--accent);border-radius:2px"></div></div>
+        </div>
+        <div style="padding:9px 0 2px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text)"><span>Eating out</span><span style="color:var(--subtle)">₪760</span></div>
+          <div style="height:4px;background:var(--surfaceAlt);border-radius:2px;margin-top:5px"><div style="height:4px;width:60%;background:var(--accent);border-radius:2px"></div></div>
+        </div>
+        <div style="padding:9px 0 2px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text)"><span>Transport</span><span style="color:var(--subtle)">₪430</span></div>
+          <div style="height:4px;background:var(--surfaceAlt);border-radius:2px;margin-top:5px"><div style="height:4px;width:34%;background:var(--accent);border-radius:2px"></div></div>
+        </div>
+        <div style="padding:9px 0 2px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text)"><span>Fun</span><span style="color:var(--subtle)">₪620</span></div>
+          <div style="height:4px;background:var(--surfaceAlt);border-radius:2px;margin-top:5px"><div style="height:4px;width:49%;background:var(--accent);border-radius:2px"></div></div>
+        </div>
+      </div>
+      <div style="margin-top:11px;padding-top:9px;border-top:1px solid var(--hairline);font-size:9px;color:var(--subtle);text-align:center">Routine asks every evening at 21:00 — answers logged automatically</div>
+    </div>
+  </div></div>
+  <div class="cap">Budget coach — living ledger</div>
+</div>
+
+<div>
+  <div class="phone"><div class="screen">
+    <div class="notch"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 2px;color:var(--subtle)">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div style="padding:10px 18px 0;display:flex;align-items:center;gap:9px">
+      <span style="color:var(--accent);display:flex"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 9.5 12 4.5l9.5 5L12 14.5z"/><path d="M6.5 12v4.2c0 1.4 2.5 2.8 5.5 2.8s5.5-1.4 5.5-2.8V12"/><path d="M21.5 9.5V15"/></svg></span>
+      <span style="font-family:Georgia,serif;font-size:21px;color:var(--text)">Linear Algebra</span>
+    </div>
+    <div style="padding:3px 18px 0;font-size:10px;color:var(--subtle)">Tutor domain · built from one request</div>
+    <div style="margin:14px 16px 0;background:var(--surface);border:1px solid var(--hairline);border-radius:16px;padding:14px">
+      <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--subtle)">Course progress</div>
+      <div style="font-family:Georgia,serif;font-size:16px;color:var(--text);margin-top:5px">Lesson 4 of 12 — Eigenvalues</div>
+      <div style="display:flex;gap:6px;margin-top:11px">
+        <span style="width:9px;height:9px;border-radius:50%;background:var(--accent);display:block"></span>
+        <span style="width:9px;height:9px;border-radius:50%;background:var(--accent);display:block"></span>
+        <span style="width:9px;height:9px;border-radius:50%;background:var(--accent);display:block"></span>
+        <span style="width:9px;height:9px;border-radius:50%;background:var(--accent);display:block"></span>
+        <span style="width:9px;height:9px;border-radius:50%;border:1px solid var(--hairline);display:block;box-sizing:border-box"></span>
+        <span style="width:9px;height:9px;border-radius:50%;border:1px solid var(--hairline);display:block;box-sizing:border-box"></span>
+        <span style="width:9px;height:9px;border-radius:50%;border:1px solid var(--hairline);display:block;box-sizing:border-box"></span>
+        <span style="width:9px;height:9px;border-radius:50%;border:1px solid var(--hairline);display:block;box-sizing:border-box"></span>
+        <span style="width:9px;height:9px;border-radius:50%;border:1px solid var(--hairline);display:block;box-sizing:border-box"></span>
+        <span style="width:9px;height:9px;border-radius:50%;border:1px solid var(--hairline);display:block;box-sizing:border-box"></span>
+        <span style="width:9px;height:9px;border-radius:50%;border:1px solid var(--hairline);display:block;box-sizing:border-box"></span>
+        <span style="width:9px;height:9px;border-radius:50%;border:1px solid var(--hairline);display:block;box-sizing:border-box"></span>
+      </div>
+    </div>
+    <div style="margin:10px 16px 0;background:var(--surface);border:1px solid var(--hairline);border-radius:14px;padding:12px 13px;display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <div>
+        <div style="font-size:12px;color:var(--text)">Next: 20-min session ready</div>
+        <div style="font-size:10px;color:var(--subtle);margin-top:3px">Eigenvalues — intuition first, then 5 exercises</div>
+      </div>
+      <div style="background:var(--accent);color:#fff;border-radius:999px;padding:7px 15px;font-size:11px;flex-shrink:0">Start</div>
+    </div>
+    <div style="margin:14px 18px 0;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--subtle)">Completed</div>
+    <div style="margin:8px 16px 0;background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:10px 13px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:11px;color:var(--text)">Lesson 3 — Determinants</div>
+        <div style="font-size:9.5px;color:var(--subtle);margin-top:2px">Aug 1 · quiz 9/10</div>
+      </div>
+      <span style="color:var(--accent);display:flex"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div style="margin:8px 16px 0;background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:10px 13px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:11px;color:var(--text)">Lesson 2 — Matrix ops</div>
+        <div style="font-size:9.5px;color:var(--subtle);margin-top:2px">Jul 29 · quiz 8/10</div>
+      </div>
+      <span style="color:var(--accent);display:flex"><svg width="14" height="14" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5 10-11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+  </div></div>
+  <div class="cap">Say &#39;teach me X&#39; → folder + skill + routine + dashboard appear.</div>
+</div></div><h2 style="font-family:Georgia,serif;font-weight:600;font-size:20px;color:#111214;text-align:center;margin:44px 0 18px">The agent-shaped workspace</h2><div class="row"><div>
+  <div class="phone"><div class="screen dark">
+    <div class="notch"></div>
+    <div style="opacity:.3">
+      <div class="top">
+        <div class="menu"><svg width="16" height="16" viewBox="0 0 24 24" style="color:var(--dsubtle)"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="wordmark">Hermes</div>
+        <div class="avatar">K</div>
+      </div>
+      <div class="greet" style="padding-top:26px">
+        <div style="font-family:Georgia,serif;font-size:22px;color:var(--dtext)">Good evening, Kevyn.</div>
+        <div style="font-size:11px;color:var(--dsubtle);margin-top:6px">Monday, 3 August &middot; Be&rsquo;er Sheva</div>
+      </div>
+    </div>
+    <div class="sheetwrap">
+      <div class="sheet" style="display:flex;flex-direction:column;min-height:400px">
+        <div class="grab"></div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">
+          <div style="display:flex;align-items:center;gap:6px;border:1px solid var(--dhairline);border-radius:999px;padding:6px 12px;font-size:11px;color:var(--dtext);background:var(--dsurface)">
+            <svg width="12" height="12" viewBox="0 0 24 24" style="color:var(--daccent)"><path d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM12 8v4l3 2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Routines
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;border:1px solid var(--dhairline);border-radius:999px;padding:6px 12px;font-size:11px;color:var(--dtext);background:var(--dsurface)">
+            <svg width="12" height="12" viewBox="0 0 24 24" style="color:var(--daccent)"><path d="M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0V8zM12 16v5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Connectors
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 18px">
+          <div style="width:44px;height:44px;border:1px dashed var(--dhairline);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:var(--daccent)">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div style="font-family:Georgia,serif;font-size:14px;color:var(--dtext)">Your space is unshaped.</div>
+          <div style="font-size:11px;color:var(--dsubtle);margin-top:8px;line-height:1.6;max-width:210px">Tell Hermes what to keep and how to organize it &mdash; folders form themselves as you speak.</div>
+        </div>
+        <div style="font-size:10px;color:var(--dsubtle);text-align:center;border-top:1px solid var(--dhairline);padding-top:12px">Shape it by asking &mdash; <span style="color:var(--daccent)">&ldquo;keep this under Travel / Japan&rdquo;</span></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">Day one &mdash; the ＋ sheet opens on an unshaped space.</div>
+</div>
+<div>
+  <div class="phone"><div class="screen dark">
+    <div class="notch"></div>
+    <div style="opacity:.3">
+      <div class="top">
+        <div class="menu"><svg width="16" height="16" viewBox="0 0 24 24" style="color:var(--dsubtle)"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="wordmark">Hermes</div>
+        <div class="avatar">K</div>
+      </div>
+      <div class="greet" style="padding-top:26px">
+        <div style="font-family:Georgia,serif;font-size:22px;color:var(--dtext)">Good evening, Kevyn.</div>
+        <div style="font-size:11px;color:var(--dsubtle);margin-top:6px">Monday, 14 September &middot; Be&rsquo;er Sheva</div>
+      </div>
+    </div>
+    <div class="sheetwrap">
+      <div class="sheet" style="display:flex;flex-direction:column;min-height:400px">
+        <div class="grab"></div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:14px">
+          <div style="display:flex;align-items:center;gap:6px;border:1px solid var(--dhairline);border-radius:999px;padding:6px 12px;font-size:11px;color:var(--dtext);background:var(--dsurface)">
+            <svg width="12" height="12" viewBox="0 0 24 24" style="color:var(--daccent)"><path d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM12 8v4l3 2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Routines
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;border:1px solid var(--dhairline);border-radius:999px;padding:6px 12px;font-size:11px;color:var(--dtext);background:var(--dsurface)">
+            <svg width="12" height="12" viewBox="0 0 24 24" style="color:var(--daccent)"><path d="M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0V8zM12 16v5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Connectors
+          </div>
+        </div>
+        <div class="grid" style="margin-top:16px">
+          <div class="cell">
+            <div class="ic" style="color:var(--daccent)"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M3 7h18v10H3zM12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM6.5 12h.01M17.5 12h.01" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="lb">Finance</div>
+            <div style="font-size:9px;color:var(--dsubtle);margin-top:2px">2 <span style="color:var(--daccent)">&#9656;</span></div>
+          </div>
+          <div class="cell">
+            <div class="ic" style="color:var(--daccent)"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M21 4 3 11l7 2.5L13 21l8-17zM21 4 10 13.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="lb">Travel</div>
+            <div style="font-size:9px;color:var(--dsubtle);margin-top:2px">1 <span style="color:var(--daccent)">&#9656;</span></div>
+          </div>
+          <div class="cell">
+            <div class="ic" style="color:var(--daccent)"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M2 9.5 12 5l10 4.5L12 14 2 9.5zM6.5 12v3.5c0 1.4 2.5 2.5 5.5 2.5s5.5-1.1 5.5-2.5V12M22 9.5V14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="lb">Academy</div>
+            <div style="font-size:9px;color:var(--dsubtle);margin-top:2px">3 <span style="color:var(--daccent)">&#9656;</span></div>
+          </div>
+          <div class="cell">
+            <div class="ic" style="color:var(--daccent)"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M5 11h14M6.5 11v5.5a2.5 2.5 0 0 0 2.5 2.5h6a2.5 2.5 0 0 0 2.5-2.5V11M9.5 7.5c0-1 .5-1.5.5-2.5M13 7.5c0-1 .5-1.5.5-2.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="lb">Recipes</div>
+            <div style="font-size:9px;color:var(--dsubtle);margin-top:2px">7</div>
+          </div>
+          <div class="cell">
+            <div class="ic" style="color:var(--daccent)"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M4 9h16v3H4zM6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7M12 9v11M12 9C12 6.5 10.6 4.5 9 4.5c-1.2 0-1.8.8-1.8 1.6C7.2 7.8 9.6 9 12 9zM12 9c0-2.5 1.4-4.5 3-4.5 1.2 0 1.8.8 1.8 1.6C16.8 7.8 14.4 9 12 9z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="lb">Gifts</div>
+            <div style="font-size:9px;color:var(--dsubtle);margin-top:2px">2</div>
+          </div>
+          <div class="cell">
+            <div class="ic" style="color:var(--daccent)"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 20C7.8 16.8 3.5 13.4 3.5 9.6 3.5 7.1 5.4 5.2 7.9 5.2c1.6 0 3.1.8 4.1 2.2 1-1.4 2.5-2.2 4.1-2.2 2.5 0 4.4 1.9 4.4 4.4 0 3.8-4.3 7.2-8.5 10.4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="lb">Health</div>
+            <div style="font-size:9px;color:var(--dsubtle);margin-top:2px">4</div>
+          </div>
+        </div>
+        <div style="flex:1"></div>
+        <div style="font-size:10px;color:var(--dsubtle);text-align:center;border-top:1px solid var(--dhairline);padding-top:12px;margin-top:14px">Shape it by asking &mdash; <span style="color:var(--daccent)">&ldquo;keep this under Travel / Japan&rdquo;</span></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">Same sheet &mdash; grown purely by conversation.</div>
+</div></div><h2 style="font-family:Georgia,serif;font-weight:600;font-size:20px;color:#111214;text-align:center;margin:44px 0 18px">Connectors — integrations of all</h2><div class="row"><div>
+  <div class="phone"><div class="screen">
+    <div class="notch"></div>
+    <div class="top">
+      <div class="menu"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="wordmark">Hermes</div>
+      <div class="avatar">K</div>
+    </div>
+    <div class="pagetitle">Connectors</div>
+    <div style="padding:0 16px">
+      <div style="font-size:11px;color:var(--subtle);margin:2px 2px 14px">Add an app and its tools attach automatically.</div>
+
+      <div class="lrow" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:32px;height:32px;border-radius:9px;background:var(--surfaceAlt);display:flex;align-items:center;justify-content:center;color:var(--accent);flex:none"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M7 3h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M9.5 8h5 M9.5 12h5 M9.5 16h3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px;font-weight:600;color:var(--text)">Notion</span><span style="font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:1px 5px">MCP</span></div>
+          <div style="font-size:10px;color:var(--subtle);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">12 tools: search_pages, create_page&#8230;</div>
+        </div>
+        <div style="width:40px;height:24px;border-radius:12px;background:var(--accent);position:relative;flex:none"><div style="width:20px;height:20px;border-radius:50%;background:#FFF;position:absolute;top:2px;right:2px;box-shadow:0 1px 2px rgba(0,0,0,.18)"></div></div>
+      </div>
+
+      <div class="lrow" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:32px;height:32px;border-radius:9px;background:var(--surfaceAlt);display:flex;align-items:center;justify-content:center;color:var(--accent);flex:none"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M6.5 18a4 4 0 0 1-.3-8A5.5 5.5 0 0 1 17 11.3 3.4 3.4 0 0 1 16.6 18z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px;font-weight:600;color:var(--text)">Weather</span><span style="font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:1px 5px">App</span></div>
+          <div style="font-size:10px;color:var(--subtle);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">1 tool &#183; no key</div>
+        </div>
+        <div style="width:40px;height:24px;border-radius:12px;background:var(--accent);position:relative;flex:none"><div style="width:20px;height:20px;border-radius:50%;background:#FFF;position:absolute;top:2px;right:2px;box-shadow:0 1px 2px rgba(0,0,0,.18)"></div></div>
+      </div>
+
+      <div class="lrow" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:32px;height:32px;border-radius:9px;background:var(--surfaceAlt);display:flex;align-items:center;justify-content:center;color:var(--accent);flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="7" r="2.4"/><path d="M6 8.4v7.2"/><path d="M18 9.4a8.5 8.5 0 0 1-9.3 6.4"/></svg></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px;font-weight:600;color:var(--text)">GitHub</span><span style="font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:1px 5px">App</span></div>
+          <div style="font-size:10px;color:var(--subtle);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">3 tools: list_repos, create_issue&#8230;</div>
+        </div>
+        <div style="width:40px;height:24px;border-radius:12px;background:var(--accent);position:relative;flex:none"><div style="width:20px;height:20px;border-radius:50%;background:#FFF;position:absolute;top:2px;right:2px;box-shadow:0 1px 2px rgba(0,0,0,.18)"></div></div>
+      </div>
+
+      <div class="lrow" style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:32px;height:32px;border-radius:9px;background:var(--surfaceAlt);display:flex;align-items:center;justify-content:center;color:var(--accent);flex:none"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M8.5 7.5 4 12l4.5 4.5 M15.5 7.5 20 12l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px"><span style="font-size:13px;font-weight:600;color:var(--text)">Demo API</span><span style="font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:1px 5px">API</span></div>
+          <div style="font-size:10px;color:var(--subtle);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">3 tools: listPets, getPetById&#8230;</div>
+        </div>
+        <div style="width:40px;height:24px;border-radius:12px;background:var(--accent);position:relative;flex:none"><div style="width:20px;height:20px;border-radius:50%;background:#FFF;position:absolute;top:2px;right:2px;box-shadow:0 1px 2px rgba(0,0,0,.18)"></div></div>
+      </div>
+
+      <div class="addbar">
+        <div class="addbtn">&#65291; MCP server</div>
+        <div class="addbtn">&#65291; API (OpenAPI)</div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">One list for every integration &#8212; MCP servers, built-in apps, OpenAPI specs.</div>
+</div>
+
+<div>
+  <div class="phone"><div class="screen dark">
+    <div class="notch"></div>
+    <div class="top">
+      <div class="menu"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="wordmark">Hermes</div>
+      <div class="avatar">K</div>
+    </div>
+    <div class="msgs">
+      <div class="user">connect my notion</div>
+      <div class="think">Searching the MCP registry&#8230;</div>
+      <div class="activity"><div class="achip"><svg width="12" height="12" viewBox="0 0 24 24" style="color:var(--daccent);vertical-align:-2px"><path d="M11 21a8 8 0 1 1 8-8 M21 21l-3.2-3.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> registry &#183; search &#8220;notion&#8221;</div></div>
+      <div class="ai">Found Notion&#8217;s official MCP server. Installing a connector needs your OK &#8212; approve below and its 12 tools attach automatically.</div>
+    </div>
+    <div class="sheetwrap"><div class="sheet">
+      <div class="grab"></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin:2px 0 10px"><svg width="14" height="14" viewBox="0 0 24 24" style="color:var(--daccent)"><path d="M12 3l7 3v5c0 4.4-2.9 8.2-7 10-4.1-1.8-7-5.6-7-10V6z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--dsubtle)">Approval required</span></div>
+      <div class="req">
+        <div class="a">Install MCP connector</div>
+        <div class="d">notion &#8212; https://mcp.notion.com/mcp &#183; tools attach on next message</div>
+      </div>
+      <div class="btns">
+        <div class="btn gray">Not now</div>
+        <div class="btn gold">Approve</div>
+      </div>
+    </div></div>
+  </div></div>
+  <div class="cap">Hermes installs its own connectors mid-chat &#8212; but only behind an explicit approval.</div>
+</div></div><h2 style="font-family:Georgia,serif;font-weight:600;font-size:20px;color:#111214;text-align:center;margin:44px 0 18px">Rhythms, model, settings</h2><div class="row"><div>
+  <div class="phone"><div class="screen">
+    <div class="notch"></div>
+    <div style="padding:0 14px;">
+      <div class="pagetitle" style="display:flex;align-items:baseline;justify-content:space-between;">Routines
+        <span style="font-family:-apple-system,'Segoe UI',Helvetica,sans-serif;font-size:11px;font-weight:600;color:var(--accent);display:inline-flex;align-items:center;gap:4px;">
+          <svg width="14" height="14" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>New
+        </span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px;">
+        <div class="lrow" style="display:flex;flex-direction:column;gap:7px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="color:var(--accent);display:inline-flex;"><svg width="15" height="15" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+              <span style="font-size:13px;font-weight:600;color:var(--text);">Morning brief</span>
+            </div>
+            <span style="width:36px;height:21px;border-radius:11px;background:var(--accent);position:relative;display:inline-block;flex:none;"><span style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:#FFF;"></span></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--subtle);">
+            <span style="font-family:ui-monospace,Menlo,monospace;background:var(--surfaceAlt);border:1px solid var(--hairline);border-radius:6px;padding:2px 7px;">0 7 * * *</span>
+            <span>daily · 07:00 Israel</span>
+          </div>
+          <div style="font-size:11px;color:var(--subtle);border-top:1px solid var(--hairline);padding-top:7px;">Last · today 07:00 — <span style="color:var(--text);">34° sunny · 2 meetings · inbox clear</span></div>
+        </div>
+        <div class="lrow" style="display:flex;flex-direction:column;gap:7px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="color:var(--accent);display:inline-flex;"><svg width="15" height="15" viewBox="0 0 24 24"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 8h6M9 12h6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+              <span style="font-size:13px;font-weight:600;color:var(--text);">Evening expenses</span>
+            </div>
+            <span style="width:36px;height:21px;border-radius:11px;background:var(--accent);position:relative;display:inline-block;flex:none;"><span style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:#FFF;"></span></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--subtle);">
+            <span style="font-family:ui-monospace,Menlo,monospace;background:var(--surfaceAlt);border:1px solid var(--hairline);border-radius:6px;padding:2px 7px;">0 21 * * 5</span>
+            <span>Fridays · 21:00</span>
+          </div>
+          <div style="font-size:11px;color:var(--subtle);border-top:1px solid var(--hairline);padding-top:7px;">Last · Fri 21:00 — <span style="color:var(--text);">₪1,284 this week · 3 to categorize</span></div>
+        </div>
+        <div class="lrow" style="display:flex;flex-direction:column;gap:7px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="color:var(--accent);display:inline-flex;"><svg width="15" height="15" viewBox="0 0 24 24"><path d="M4 19h16M6 15l4-5 3 3 5-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span style="font-size:13px;font-weight:600;color:var(--text);">Polymarket check</span>
+            </div>
+            <span style="width:36px;height:21px;border-radius:11px;background:var(--accent);position:relative;display:inline-block;flex:none;"><span style="position:absolute;top:2px;right:2px;width:17px;height:17px;border-radius:50%;background:#FFF;"></span></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--subtle);">
+            <span style="font-family:ui-monospace,Menlo,monospace;background:var(--surfaceAlt);border:1px solid var(--hairline);border-radius:6px;padding:2px 7px;">0 */6 * * *</span>
+            <span>every 6 hours</span>
+          </div>
+          <div style="font-size:11px;color:var(--subtle);border-top:1px solid var(--hairline);padding-top:7px;">Last · today 12:00 — <span style="color:var(--text);">no fills, spread too wide</span></div>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:10px;color:var(--subtle);">
+        <span style="color:var(--accent);display:inline-flex;"><svg width="12" height="12" viewBox="0 0 24 24"><path d="M18 16H6c1.2-1.2 1.8-2 1.8-5a4.2 4.2 0 0 1 8.4 0c0 3 .6 3.8 1.8 5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 19a1.8 1.8 0 0 0 3 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+        Push budget · 2 of 4 used today · overflow → Ledger
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">Routine results arrive as push within a 4/day attention budget — overflow lands in the ledger.</div>
+</div>
+
+<div>
+  <div class="phone"><div class="screen dark">
+    <div class="notch"></div>
+    <div class="top">
+      <div class="menu"><svg width="16" height="16" viewBox="0 0 24 24" style="color:var(--dsubtle);"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+      <div class="wordmark">Hermes</div>
+      <div class="avatar">K</div>
+    </div>
+    <div class="msgs" style="padding:10px 14px;">
+      <div class="user">Which model are you running right now?</div>
+      <div class="ai">claude-sonnet-5 via Anthropic. You can switch from the sheet below — it applies on your next message.</div>
+    </div>
+    <div class="sheetwrap"><div class="sheet" style="background:var(--dsurface);color:var(--dtext);">
+      <div class="grab"></div>
+      <div style="font-family:Georgia,serif;font-size:17px;color:var(--dtext);margin:2px 0 12px;">Model</div>
+      <div style="font-size:9px;letter-spacing:.12em;font-weight:600;color:var(--dsubtle);margin-bottom:7px;">PROVIDER</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+        <span style="font-size:11px;font-weight:600;padding:5px 12px;border-radius:999px;background:var(--daccent);color:#16130B;">Anthropic</span>
+        <span style="font-size:11px;padding:5px 12px;border-radius:999px;background:var(--dsurfaceAlt);color:var(--dsubtle);border:1px solid var(--dhairline);">OpenAI</span>
+        <span style="font-size:11px;padding:5px 12px;border-radius:999px;background:var(--dsurfaceAlt);color:var(--dsubtle);border:1px solid var(--dhairline);">Google</span>
+        <span style="font-size:11px;padding:5px 12px;border-radius:999px;background:var(--dsurfaceAlt);color:var(--dsubtle);border:1px solid var(--dhairline);">OpenRouter</span>
+        <span style="font-size:11px;padding:5px 12px;border-radius:999px;background:var(--dsurfaceAlt);color:var(--dsubtle);border:1px solid var(--dhairline);">Ollama</span>
+      </div>
+      <div style="font-size:9px;letter-spacing:.12em;font-weight:600;color:var(--dsubtle);margin-bottom:7px;">MODEL ID</div>
+      <div style="border:1px solid var(--dhairline);border-radius:10px;padding:9px 12px;display:flex;align-items:center;gap:3px;">
+        <span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--dtext);">claude-sonnet-5</span>
+        <span style="width:1px;height:14px;background:var(--daccent);display:inline-block;"></span>
+      </div>
+      <div style="font-size:10px;color:var(--dsubtle);margin:9px 0 14px;">Applied on your next message — no restart needed.</div>
+      <div class="btns">
+        <div class="btn gray" style="background:var(--dsurfaceAlt);color:var(--dtext);">Cancel</div>
+        <div class="btn gold" style="background:var(--daccent);color:#16130B;">Apply</div>
+      </div>
+    </div></div>
+  </div></div>
+  <div class="cap">Model sheet — switch provider or model anytime; it takes effect on the next message.</div>
+</div>
+
+<div>
+  <div class="phone"><div class="screen">
+    <div class="notch"></div>
+    <div style="padding:0 14px;">
+      <div class="pagetitle">Settings</div>
+      <div style="font-size:9px;letter-spacing:.12em;font-weight:600;color:var(--subtle);margin:6px 0 6px;">SERVER</div>
+      <div class="card" style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;border:1px solid var(--hairline);border-radius:9px;padding:7px 10px;">
+          <span style="color:var(--accent);display:inline-flex;"><svg width="14" height="14" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="13" width="16" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M7 8h1M7 16h1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+          <span style="font-size:11px;font-family:ui-monospace,Menlo,monospace;color:var(--text);">https://home.kevyn.dev:8787</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;border:1px solid var(--hairline);border-radius:9px;padding:7px 10px;">
+          <span style="font-size:11px;letter-spacing:2px;color:var(--text);">••••••••••••••••</span>
+          <span style="font-size:9px;letter-spacing:.1em;color:var(--subtle);">TOKEN</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="background:var(--accent);color:#FFF;font-size:11px;font-weight:600;padding:7px 14px;border-radius:999px;">Save &amp; test</span>
+          <span style="font-size:10px;"><span style="color:#3FA46A;font-weight:600;">Connected ✓</span> <span style="color:var(--subtle);font-family:ui-monospace,Menlo,monospace;">(anthropic:claude-sonnet-5)</span></span>
+        </div>
+      </div>
+      <div style="font-size:9px;letter-spacing:.12em;font-weight:600;color:var(--subtle);margin:14px 0 6px;">CONNECTED ACCOUNTS</div>
+      <div class="card" style="padding:2px 12px;">
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 0;">
+          <span style="color:var(--accent);display:inline-flex;"><svg width="15" height="15" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M20 12h-6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+          <span style="flex:1;"><span style="display:block;font-size:12px;color:var(--text);">Google</span><span style="display:block;font-size:9px;color:var(--subtle);">Gmail · Calendar · Drive</span></span>
+          <span style="width:7px;height:7px;border-radius:50%;background:#3FA46A;display:inline-block;"></span>
+          <span style="font-size:10px;color:var(--subtle);">Connected</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid var(--hairline);">
+          <span style="color:var(--accent);display:inline-flex;"><svg width="15" height="15" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3 8l9 6 9-6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span style="flex:1;font-size:12px;color:var(--text);">Apple Mail</span>
+          <span style="width:7px;height:7px;border-radius:50%;background:#3FA46A;display:inline-block;"></span>
+          <span style="font-size:10px;color:var(--subtle);">Connected</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid var(--hairline);">
+          <span style="color:var(--accent);display:inline-flex;"><svg width="15" height="15" viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L4 20l1-4.6A8.5 8.5 0 1 1 21 11.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span style="flex:1;font-size:12px;color:var(--text);">WhatsApp</span>
+          <span style="width:7px;height:7px;border-radius:50%;background:#3FA46A;display:inline-block;"></span>
+          <span style="font-size:10px;color:var(--subtle);">Connected</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid var(--hairline);">
+          <span style="color:var(--accent);display:inline-flex;"><svg width="15" height="15" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M15.5 15.5L20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+          <span style="flex:1;font-size:12px;color:var(--text);">Web search</span>
+          <span style="width:7px;height:7px;border-radius:50%;background:#3FA46A;display:inline-block;"></span>
+          <span style="font-size:10px;color:var(--subtle);">Connected</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-top:1px solid var(--hairline);">
+          <span style="color:var(--accent);display:inline-flex;"><svg width="15" height="15" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 9.5l4.5 2.5-4.5 2.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span style="flex:1;font-size:12px;color:var(--text);">YouTube</span>
+          <span style="width:7px;height:7px;border-radius:50%;border:1.4px solid var(--subtle);display:inline-block;"></span>
+          <span style="font-size:10px;color:var(--subtle);">Not set up</span>
+          <span style="font-size:11px;font-weight:600;color:var(--accent);">Sign in ›</span>
+        </div>
+      </div>
+      <div style="font-size:9px;letter-spacing:.12em;font-weight:600;color:var(--subtle);margin:14px 0 6px;">PHONE</div>
+      <div class="card" style="padding:2px 12px;">
+        <div style="display:flex;align-items:center;gap:9px;padding:8px 0;">
+          <span style="color:var(--accent);display:inline-flex;"><svg width="15" height="15" viewBox="0 0 24 24"><path d="M18 16H6c1.2-1.2 1.8-2 1.8-5a4.2 4.2 0 0 1 8.4 0c0 3 .6 3.8 1.8 5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.5 19a1.8 1.8 0 0 0 3 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+          <span style="flex:1;font-size:12px;color:var(--text);">Push notifications</span>
+          <span style="font-size:10px;color:#3FA46A;font-weight:600;">Registered ✓</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid var(--hairline);">
+          <span style="color:var(--accent);display:inline-flex;"><svg width="15" height="15" viewBox="0 0 24 24"><rect x="4" y="4" width="9" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="11" y="11" width="9" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span style="flex:1;font-size:12px;color:var(--text);">AI: Poll</span>
+          <span style="font-size:10px;color:var(--subtle);">installed v1</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid var(--hairline);">
+          <span style="color:var(--accent);display:inline-flex;"><svg width="15" height="15" viewBox="0 0 24 24"><rect x="4" y="4" width="9" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="11" y="11" width="9" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span style="flex:1;font-size:12px;color:var(--text);">AI: Capture</span>
+          <span style="font-size:10px;color:var(--subtle);">installed v1</span>
+        </div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">Settings — pair the home server, check account links, and confirm the phone-side shortcut pack.</div>
+</div></div>
+</body></html>
