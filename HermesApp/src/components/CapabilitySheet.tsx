@@ -13,6 +13,7 @@ import { api, type WorkspaceNode } from '../api/rest';
 import { radius, space as sp, type as typ } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import { Sheet } from './Sheet';
+import { Symbol } from './Symbol';
 
 interface CapabilitySheetProps {
   visible: boolean;
@@ -51,8 +52,8 @@ export function CapabilitySheet({ visible, onClose, onPrompt }: CapabilitySheetP
       {/* system surfaces: quiet chips, not part of the tree */}
       <View style={styles.systemRow}>
         {[
-          { label: '↻ Routines', route: '/routines' },
-          { label: '🧩 Connectors', route: '/connectors' },
+          { label: 'Routines', icon: 'arrow.triangle.2.circlepath', route: '/routines' },
+          { label: 'Connectors', icon: 'puzzlepiece.extension', route: '/connectors' },
         ].map((entry) => (
           <Pressable
             key={entry.route}
@@ -62,6 +63,7 @@ export function CapabilitySheet({ visible, onClose, onPrompt }: CapabilitySheetP
             }}
             style={[styles.systemChip, { borderColor: colors.hairline }]}
           >
+            <Symbol name={entry.icon} size={14} />
             <Text style={{ color: colors.subtle, fontSize: typ.small }}>{entry.label}</Text>
           </Pressable>
         ))}
@@ -69,9 +71,8 @@ export function CapabilitySheet({ visible, onClose, onPrompt }: CapabilitySheetP
 
       {trail.length > 0 && (
         <Pressable onPress={() => setTrail((t) => t.slice(0, -1))} style={styles.backRow}>
-          <Text style={{ color: colors.accent, fontSize: typ.small }}>
-            ‹ {here?.icon} {here?.name}
-          </Text>
+          <Symbol name="chevron.left" size={13} tint={colors.accent} />
+          <Text style={{ color: colors.accent, fontSize: typ.small }}>{here?.name}</Text>
         </Pressable>
       )}
 
@@ -99,7 +100,7 @@ export function CapabilitySheet({ visible, onClose, onPrompt }: CapabilitySheetP
               }}
               style={[styles.cell, { backgroundColor: colors.surfaceAlt }]}
             >
-              <Text style={{ fontSize: 20 }}>{node.icon}</Text>
+              <Symbol name={node.icon} size={22} tint={colors.accent} />
               <Text style={[styles.cellLabel, { color: colors.text }]} numberOfLines={1}>
                 {node.name}
               </Text>
@@ -136,12 +137,15 @@ export function CapabilitySheet({ visible, onClose, onPrompt }: CapabilitySheetP
 const styles = StyleSheet.create({
   systemRow: { flexDirection: 'row', gap: sp(2), marginBottom: sp(4) },
   systemChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: sp(1.5),
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: radius.lg,
     paddingHorizontal: sp(3),
     paddingVertical: sp(1.5),
   },
-  backRow: { marginBottom: sp(3) },
+  backRow: { flexDirection: 'row', alignItems: 'center', gap: sp(1), marginBottom: sp(3) },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: sp(3) },
   cell: {
     width: '30.5%',

@@ -22,7 +22,7 @@ def _slug(name: str) -> str:
     return base or uuid.uuid4().hex[:8]
 
 
-def _ensure_path(path: str, icon: str = "◇") -> str | None:
+def _ensure_path(path: str, icon: str = "folder") -> str | None:
     """Create every missing folder along a path; return the leaf node id."""
     parent_id: str | None = None
     for part in [p.strip() for p in path.split("/") if p.strip()]:
@@ -36,7 +36,7 @@ def _ensure_path(path: str, icon: str = "◇") -> str | None:
         node_id = f"{_slug(part)}-{uuid.uuid4().hex[:4]}"
         db.execute(
             "INSERT INTO hermes.nodes (id, parent_id, name, icon) VALUES (%s,%s,%s,%s)",
-            (node_id, parent_id, part, icon[:4]),
+            (node_id, parent_id, part, icon[:40]),
         )
         parent_id = node_id
     return parent_id
@@ -67,7 +67,10 @@ def shape_workspace(operations: str) -> str:
 
     Args:
         operations: JSON array of operations, each one of:
-            {"op":"create","path":"Travel/Japan","icon":"🗾"}
+            {"op":"create","path":"Travel/Japan","icon":"airplane"}
+            (icons are SF Symbol names: 'airplane', 'banknote',
+            'graduationcap', 'fork.knife', 'chart.line.uptrend.xyaxis',
+            'book', 'cart', 'house', 'heart', 'folder' — never emoji)
             {"op":"rename","path":"Travel/Japan","name":"Nippon"}
             {"op":"move","path":"Recipes","into":"Kitchen"}
             {"op":"delete","path":"Old stuff"}
@@ -86,7 +89,7 @@ def shape_workspace(operations: str) -> str:
         kind = op.get("op")
         path = str(op.get("path", ""))
         if kind == "create":
-            _ensure_path(path, op.get("icon", "◇"))
+            _ensure_path(path, op.get("icon", "folder"))
         elif kind in {"rename", "move", "delete"}:
             node_id = _find_by_path(path)
             if node_id is None:

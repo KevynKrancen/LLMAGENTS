@@ -15,6 +15,7 @@ import { useRouter } from 'expo-router';
 import { api, type ThreadSummary, type WorkspaceNode } from '../api/rest';
 import { radius, space, type as typ } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
+import { Symbol } from './Symbol';
 
 interface ThreadDrawerProps {
   visible: boolean;
@@ -64,7 +65,7 @@ export function ThreadDrawer({ visible, onClose, onPick, onNew }: ThreadDrawerPr
                   }}
                   style={styles.domainRow}
                 >
-                  <Text style={{ fontSize: 15 }}>{domain.icon}</Text>
+                  <Symbol name={domain.icon} size={17} tint={colors.accent} />
                   <Text style={{ color: colors.text, fontSize: typ.body, flex: 1 }} numberOfLines={1}>
                     {domain.name}
                   </Text>

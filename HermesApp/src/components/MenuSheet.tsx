@@ -6,12 +6,13 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 import { space, type as typ } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import { Sheet } from './Sheet';
+import { Symbol } from './Symbol';
 
 const ITEMS = [
-  { label: 'Artifacts', route: '/artifacts', icon: '📄' },
-  { label: 'Routines', route: '/routines', icon: '↻' },
-  { label: 'Connectors', route: '/connectors', icon: '🧩' },
-  { label: 'Settings', route: '/settings', icon: '⚙' },
+  { label: 'Artifacts', route: '/artifacts', icon: 'doc.text' },
+  { label: 'Routines', route: '/routines', icon: 'arrow.triangle.2.circlepath' },
+  { label: 'Connectors', route: '/connectors', icon: 'puzzlepiece.extension' },
+  { label: 'Settings', route: '/settings', icon: 'gearshape' },
 ];
 
 export function MenuSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
@@ -29,7 +30,7 @@ export function MenuSheet({ visible, onClose }: { visible: boolean; onClose: () 
             router.push(item.route as never);
           }}
         >
-          <Text style={{ fontSize: 17 }}>{item.icon}</Text>
+          <Symbol name={item.icon} size={19} tint={colors.accent} />
           <Text style={{ color: colors.text, fontSize: typ.body }}>{item.label}</Text>
         </Pressable>
       ))}

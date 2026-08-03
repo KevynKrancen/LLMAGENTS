@@ -19,6 +19,7 @@ import { MenuSheet } from '../src/components/MenuSheet';
 import { MessageBubble } from '../src/components/MessageBubble';
 import { ModelSheet } from '../src/components/ModelSheet';
 import { ThreadDrawer } from '../src/components/ThreadDrawer';
+import { Symbol } from '../src/components/Symbol';
 import { ToolActivityBar } from '../src/components/ToolActivityBar';
 import { useChat } from '../src/state/chat';
 import { space, type as typ } from '../src/theme/tokens';
@@ -44,7 +45,7 @@ export default function Home() {
       {/* Minimal top bar: history · wordmark · menu */}
       <View style={styles.topBar}>
         <Pressable onPress={() => setDrawerOpen(true)} hitSlop={12}>
-          <Text style={{ color: colors.subtle, fontSize: 19 }}>☰</Text>
+          <Symbol name="line.3.horizontal" size={20} />
         </Pressable>
         <Text style={[styles.wordmark, { color: colors.text }]}>Hermes</Text>
         <Pressable onPress={() => setMenuOpen(true)} hitSlop={12}>

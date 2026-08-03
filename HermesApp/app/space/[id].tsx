@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { api, type ArtifactRecord, type WorkspaceNode } from '../../src/api/rest';
 import { ArtifactCanvas } from '../../src/components/ArtifactCanvas';
+import { Symbol } from '../../src/components/Symbol';
 import { radius, space as sp, type as typ } from '../../src/theme/tokens';
 import { useTheme } from '../../src/theme/useTheme';
 
@@ -59,9 +60,10 @@ export default function SpaceScreen() {
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Text style={{ color: colors.accent, fontSize: typ.body }}>‹ Back</Text>
         </Pressable>
-        <Text style={[styles.title, { color: colors.text }]}>
-          {node ? `${node.icon} ${node.name}` : ''}
-        </Text>
+        <View style={styles.titleRow}>
+          {node && <Symbol name={node.icon} size={16} tint={colors.accent} />}
+          <Text style={[styles.title, { color: colors.text }]}>{node?.name ?? ''}</Text>
+        </View>
         <View style={{ width: 44 }} />
       </View>
 
@@ -84,7 +86,7 @@ export default function SpaceScreen() {
               onPress={() => router.push({ pathname: '/space/[id]', params: { id: child.id } })}
               style={[styles.folder, { backgroundColor: colors.surfaceAlt }]}
             >
-              <Text style={{ fontSize: 18 }}>{child.icon}</Text>
+              <Symbol name={child.icon} size={15} tint={colors.accent} />
               <Text style={{ color: colors.text, fontSize: typ.micro }} numberOfLines={1}>
                 {child.name}
               </Text>
@@ -133,6 +135,7 @@ const styles = StyleSheet.create({
     paddingVertical: sp(2),
   },
   title: { fontSize: typ.body, fontWeight: '600' },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: sp(2) },
   dashboard: { height: 300, marginHorizontal: sp(4), borderRadius: radius.md, overflow: 'hidden' },
   folderGrid: {
     flexDirection: 'row',

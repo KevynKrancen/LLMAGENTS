@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS hermes.nodes (
     id TEXT PRIMARY KEY,
     parent_id TEXT REFERENCES hermes.nodes(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
-    icon TEXT NOT NULL DEFAULT '◇',
+    icon TEXT NOT NULL DEFAULT 'folder',  -- SF Symbol name
     dashboard TEXT NOT NULL DEFAULT '',   -- artifact id rendered when opening this folder
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
