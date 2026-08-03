@@ -103,6 +103,20 @@ CREATE TABLE IF NOT EXISTS hermes.integrations (
 
 ALTER TABLE hermes.artifacts ADD COLUMN IF NOT EXISTS space TEXT NOT NULL DEFAULT '';
 
+-- Spawned agents: persistent specialist subagents created at runtime by
+-- conversation ("spawn a crypto analyst"). Loaded into the deep agent's
+-- subagent roster on the next message.
+CREATE TABLE IF NOT EXISTS hermes.agents (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT NOT NULL,
+    system_prompt TEXT NOT NULL,
+    tools JSONB NOT NULL DEFAULT '[]',       -- backend tool names it may use
+    model TEXT NOT NULL DEFAULT '',          -- '' = inherit main model
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Action receipts: everything the agent DID, auditable and (where
 -- possible) reversible. The app's "while you were away" ledger.
 CREATE TABLE IF NOT EXISTS hermes.receipts (

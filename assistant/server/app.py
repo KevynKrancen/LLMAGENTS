@@ -99,12 +99,15 @@ _agui_graph_version = -1
 
 @app.middleware("http")
 async def refresh_connector_tools(request: Request, call_next):
-    """Hot-swap the chat graph when connectors changed since the last run."""
+    """Hot-swap the chat graph when connectors or spawned agents changed."""
+    from ..agent.agent_registry import agent_registry
+
     global _agui_graph_version
     if request.url.path == "/agent" and _agui_agent is not None:
-        if _agui_graph_version != integration_registry.version:
+        current = (integration_registry.version, agent_registry.version)
+        if _agui_graph_version != current:
             _agui_agent.graph = await get_assistant_graph("chat")
-            _agui_graph_version = integration_registry.version
+            _agui_graph_version = current
     return await call_next(request)
 
 

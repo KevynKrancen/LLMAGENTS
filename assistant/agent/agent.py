@@ -108,6 +108,8 @@ _OUTBOUND_APPROVAL = {
     # Connector installs attach arbitrary new tools — always ask first.
     "install_mcp_connector": {"allowed_decisions": ["approve", "reject"]},
     "install_api_connector": {"allowed_decisions": ["approve", "reject"]},
+    # Spawning a persistent specialist is a standing change — ask first.
+    "spawn_agent": {"allowed_decisions": ["approve", "edit", "reject"]},
 }
 
 # Graphs cached per (mode, integrations version) so connector changes apply
@@ -117,8 +119,9 @@ _graph_cache: dict[tuple[str, int], object] = {}
 
 def build_assistant_graph(mode: Mode = "chat", extra_tools: list | None = None):
     """Build and return the compiled assistant graph (sync, static tools only)."""
+    from ..tools.agents import AGENT_TOOLS
     from ..tools.apps import APP_TOOLS
-
+    from .agent_registry import agent_registry
     from .receipts import ReceiptMiddleware
 
     middleware = [
@@ -132,12 +135,13 @@ def build_assistant_graph(mode: Mode = "chat", extra_tools: list | None = None):
     tools = [*_TOOLSETS[mode](), *(extra_tools or [])]
     if mode == "chat":
         tools.extend(APP_TOOLS)
+        tools.extend(AGENT_TOOLS)
     return create_deep_agent(
         model=settings.assistant_model,
         tools=tools,
         system_prompt=SYSTEM_PROMPT,
         middleware=middleware,
-        subagents=build_subagents(),
+        subagents=[*build_subagents(), *agent_registry.build_subagent_specs()],
         skills=[str(_SKILLS_DIR), "/skills/"],  # bundled (read-only) + agent-authored (writable)
         backend=_backend(),
         state_schema=AssistantState,
@@ -149,10 +153,11 @@ def build_assistant_graph(mode: Mode = "chat", extra_tools: list | None = None):
 
 
 async def get_assistant_graph(mode: Mode = "chat"):
-    """Graph with connector tools attached, rebuilt when connectors change."""
+    """Graph with connector tools + spawned agents, rebuilt on any change."""
     from ..integrations import integration_registry
+    from .agent_registry import agent_registry
 
-    key = (mode, integration_registry.version)
+    key = (mode, integration_registry.version, agent_registry.version)
     graph = _graph_cache.get(key)
     if graph is None:
         connector_tools = await integration_registry.load_tools() if mode != "webhook" else []

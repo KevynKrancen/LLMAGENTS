@@ -35,6 +35,8 @@ _CONSEQUENTIAL: dict[str, str] = {
     "shape_workspace": "partial",
     "install_mcp_connector": "full",
     "install_api_connector": "full",
+    "spawn_agent": "full",
+    "retire_agent": "none",
     "play_youtube_video": "none",
     "play_youtube_search": "none",
     "run_iphone_shortcut": "none",
@@ -69,6 +71,8 @@ def _undo_descriptor(tool: str, args: dict, result_text: str) -> dict | None:
                 "args": {"artifact_id": result.get("id") or result.get("artifact_id")}}
     if tool in {"install_mcp_connector", "install_api_connector"} and result.get("id"):
         return {"kind": "remove_connector", "args": {"integration_id": result["id"]}}
+    if tool == "spawn_agent" and result.get("name"):
+        return {"kind": "retire_agent", "args": {"name": result["name"]}}
     return None
 
 
@@ -116,6 +120,10 @@ def execute_undo(receipt_id: str) -> str:
         from ..integrations import integration_registry
 
         integration_registry.remove(args["integration_id"])
+    elif kind == "retire_agent":
+        from .agent_registry import agent_registry
+
+        agent_registry.retire(args["name"])
     else:
         return f"Unknown undo kind {kind!r}."
 
