@@ -33,11 +33,12 @@ export interface ArtifactRecord {
   updated_at: string;
 }
 
-export interface SpaceRecord {
+export interface WorkspaceNode {
   id: string;
   name: string;
   icon: string;
   items: number;
+  children: WorkspaceNode[];
 }
 
 export interface DeviceCommand {
@@ -97,7 +98,7 @@ export const api = {
     request<LoggedMessage[]>(`/threads/${encodeURIComponent(threadId)}/messages`),
   artifacts: (space = '') =>
     request<ArtifactRecord[]>(`/artifacts${space ? `?space=${encodeURIComponent(space)}` : ''}`),
-  spaces: () => request<SpaceRecord[]>('/spaces'),
+  workspace: () => request<WorkspaceNode[]>('/workspace'),
   routines: () => request<RoutineRecord[]>('/routines'),
   createRoutine: (body: { name: string; cron: string; prompt: string }) =>
     request<{ id: string }>('/routines', { method: 'POST', body: JSON.stringify(body) }),

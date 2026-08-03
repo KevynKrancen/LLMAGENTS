@@ -170,14 +170,11 @@ async def list_artifacts(limit: int = 50, space: str = "") -> list[dict]:
     )
 
 
-@app.get("/spaces")
-async def list_spaces_route() -> list[dict]:
-    return db.query(
-        """SELECT s.id, s.name, s.icon, count(a.id) AS items
-           FROM hermes.spaces s
-           LEFT JOIN hermes.artifacts a ON a.space = s.id
-           GROUP BY s.id, s.name, s.icon ORDER BY s.created_at"""
-    )
+@app.get("/workspace")
+async def workspace_tree() -> list[dict]:
+    from ..tools.workspace import _tree
+
+    return _tree()
 
 
 # --- Routines ---------------------------------------------------------------

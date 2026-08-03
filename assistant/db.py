@@ -80,15 +80,15 @@ CREATE TABLE IF NOT EXISTS hermes.artifacts (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS hermes.spaces (
+-- The workspace tree: folders/collections at ANY depth, created purely by
+-- conversation. No presets — structure exists only because the user asked.
+CREATE TABLE IF NOT EXISTS hermes.nodes (
     id TEXT PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE,
+    parent_id TEXT REFERENCES hermes.nodes(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
     icon TEXT NOT NULL DEFAULT '◇',
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-INSERT INTO hermes.spaces (id, name, icon) VALUES
-    ('notes', 'Notes', '¶')
-    ON CONFLICT (id) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS hermes.integrations (
     id TEXT PRIMARY KEY,

@@ -1,28 +1,44 @@
-/** A space — dynamic collection of items the agent keeps for the user. */
+/** A workspace folder — child folders plus the items Hermes keeps here. */
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { api, type ArtifactRecord, type SpaceRecord } from '../../src/api/rest';
+import { api, type ArtifactRecord, type WorkspaceNode } from '../../src/api/rest';
 import { radius, space as sp, type as typ } from '../../src/theme/tokens';
 import { useTheme } from '../../src/theme/useTheme';
 
-export default function Space() {
+function findNode(tree: WorkspaceNode[], id: string): WorkspaceNode | null {
+  for (const node of tree) {
+    if (node.id === id) return node;
+    const inner = findNode(node.children, id);
+    if (inner) return inner;
+  }
+  return null;
+}
+
+export default function SpaceScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [items, setItems] = useState<ArtifactRecord[]>([]);
-  const [meta, setMeta] = useState<SpaceRecord | null>(null);
+  const [node, setNode] = useState<WorkspaceNode | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const load = useCallback(() => {
     if (!id) return;
     setRefreshing(true);
-    Promise.all([api.artifacts(id), api.spaces()])
-      .then(([artifacts, spaces]) => {
+    Promise.all([api.artifacts(id), api.workspace()])
+      .then(([artifacts, tree]) => {
         setItems(artifacts);
-        setMeta(spaces.find((space) => space.id === id) ?? null);
+        setNode(findNode(tree, id));
       })
       .catch(() => undefined)
       .finally(() => setRefreshing(false));
@@ -37,19 +53,39 @@ export default function Space() {
           <Text style={{ color: colors.accent, fontSize: typ.body }}>‹ Back</Text>
         </Pressable>
         <Text style={[styles.title, { color: colors.text }]}>
-          {meta ? `${meta.icon} ${meta.name}` : ''}
+          {node ? `${node.icon} ${node.name}` : ''}
         </Text>
         <View style={{ width: 44 }} />
       </View>
+
+      {node && node.children.length > 0 && (
+        <View style={styles.folderGrid}>
+          {node.children.map((child) => (
+            <Pressable
+              key={child.id}
+              onPress={() => router.push({ pathname: '/space/[id]', params: { id: child.id } })}
+              style={[styles.folder, { backgroundColor: colors.surfaceAlt }]}
+            >
+              <Text style={{ fontSize: 18 }}>{child.icon}</Text>
+              <Text style={{ color: colors.text, fontSize: typ.micro }} numberOfLines={1}>
+                {child.name}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
+
       <FlatList
         data={items}
         keyExtractor={(item) => item.id}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={load} />}
         contentContainerStyle={{ padding: sp(4), gap: sp(3) }}
         ListEmptyComponent={
-          <Text style={{ color: colors.subtle, textAlign: 'center', marginTop: sp(10) }}>
-            Nothing here yet — tell Hermes to save something into this space.
-          </Text>
+          (node?.children.length ?? 0) === 0 ? (
+            <Text style={{ color: colors.subtle, textAlign: 'center', marginTop: sp(10) }}>
+              Nothing here yet — tell Hermes to keep something in {node?.name ?? 'this folder'}.
+            </Text>
+          ) : null
         }
         renderItem={({ item }) => (
           <Pressable
@@ -61,9 +97,6 @@ export default function Space() {
             </Text>
             <Text style={{ color: colors.subtle, fontSize: typ.small }} numberOfLines={2}>
               {item.content.replace(/[#*`>]/g, '').slice(0, 140)}
-            </Text>
-            <Text style={{ color: colors.subtle, fontSize: typ.micro }}>
-              {item.updated_at?.slice(0, 16).replace('T', ' ')}
             </Text>
           </Pressable>
         )}
@@ -82,6 +115,21 @@ const styles = StyleSheet.create({
     paddingVertical: sp(2),
   },
   title: { fontSize: typ.body, fontWeight: '600' },
+  folderGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: sp(2),
+    paddingHorizontal: sp(4),
+    paddingTop: sp(2),
+  },
+  folder: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: sp(2),
+    borderRadius: radius.lg,
+    paddingHorizontal: sp(3),
+    paddingVertical: sp(2),
+  },
   card: {
     borderRadius: radius.md,
     borderWidth: StyleSheet.hairlineWidth,
