@@ -1,3 +1,15 @@
+# LLMAGENTS
+
+## 🪽 Hermes — Personal iPhone Assistant (new)
+
+A complete personal AI assistant: **[`assistant/`](assistant/README.md)** —
+DeepAgents + AG-UI + mem0 + Postgres backend · **[`HermesApp/`](HermesApp/)** —
+React Native (Expo) iPhone app with live generative UI ·
+**[`shortcuts/`](shortcuts/README.md)** — Apple Shortcuts pack for controlling
+the iPhone. Start with [assistant/README.md](assistant/README.md).
+
+---
+
 # MCP Agent System
 
 **IMPORTANT: THE MASTER AGENT IS A LOCAL AGENT! BE PRECISE WHEN ASKING QUESTIONS. Local small models have limitations with function calling and MCP protocol interpretation - they require clear, direct prompts to properly route requests to specialized agents.**
